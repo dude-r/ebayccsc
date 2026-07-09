@@ -44,15 +44,19 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
   })
 
   describe('quarters roll up to H1', () => {
+    // Computed inside each test — the describe body is still evaluated at
+    // collection time even when skipped, so it must not dereference D.
     const pick = (months) => D.monthly.filter((m) => months.includes(m.month))
-    const q1 = pick(['Jan', 'Feb', 'Mar'])
-    const q2 = pick(['Apr', 'May', 'Jun'])
 
     it('Q1 + Q2 item sales === H1 item sales', () => {
+      const q1 = pick(['Jan', 'Feb', 'Mar'])
+      const q2 = pick(['Apr', 'May', 'Jun'])
       expect(near(sumBy(q1, (m) => m.item_sales) + sumBy(q2, (m) => m.item_sales), D.H1.item_sales)).toBe(true)
     })
 
     it('Q1 + Q2 net kept === H1 net kept', () => {
+      const q1 = pick(['Jan', 'Feb', 'Mar'])
+      const q2 = pick(['Apr', 'May', 'Jun'])
       expect(
         near(sumBy(q1, (m) => m.net_after_supplies) + sumBy(q2, (m) => m.net_after_supplies), D.H1.net_after_supplies)
       ).toBe(true)
