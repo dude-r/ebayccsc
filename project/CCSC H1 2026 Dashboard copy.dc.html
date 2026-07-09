@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="ccsc-data.js"></script>
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:#E9E3D6;color:#221F1A;font-family:'Fira Sans',system-ui,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .tnum{font-family:'Fira Code',ui-monospace,monospace;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  ::selection{background:#1B5E43;color:#fff}
+  button{font-family:inherit;cursor:pointer}
+  select,input{font-family:inherit;color:#221F1A}
+  *:focus-visible{outline:2.5px solid #1B5E43;outline-offset:2px;border-radius:3px}
+  .lift{transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease}
+  .lift:hover{transform:translateY(-2px);box-shadow:0 12px 26px -14px rgba(34,31,26,.4);border-color:#C7BCA6}
+  .rowh{transition:background .14s ease}
+  .rowh:hover{background:#F1EBDD}
+  .barh{transition:filter .15s ease}
+  .barh:hover{filter:brightness(1.06) saturate(1.08)}
+  .seg{transition:background .14s ease,color .14s ease,border-color .14s ease}
+  .exp{transition:background .14s ease,color .14s ease;opacity:.55}
+  .exp:hover{opacity:1;background:#221F1A;color:#FBF9F4}
+  .info{position:relative;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid #BCAF98;color:#8A8272;font-size:10px;font-weight:700;font-style:normal;cursor:help;flex:none}
+  .info:hover,.info:focus{background:#221F1A;color:#FBF9F4;border-color:#221F1A;outline:none}
+  .info .tip{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%);width:246px;background:#221F1A;color:#EDE7DB;padding:10px 12px;border-radius:9px;font-size:11.5px;line-height:1.5;opacity:0;visibility:hidden;transition:opacity .15s ease;z-index:70;box-shadow:0 14px 34px -10px rgba(0,0,0,.45);text-align:left;pointer-events:none;font-weight:400;font-family:'Fira Sans'}
+  .info .tip b{display:block;font-weight:700;margin-bottom:4px;color:#fff;font-size:12px}
+  .info .tip i{color:#A79F8F;font-style:normal}
+  .info .tip:after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#221F1A}
+  .info:hover .tip,.info:focus .tip{opacity:1;visibility:visible}
+  .infoR .tip{left:auto;right:0;transform:none}
+  .infoR .tip:after{left:auto;right:6px}
+  ::-webkit-scrollbar{height:10px;width:10px}
+  ::-webkit-scrollbar-thumb{background:#C7BCA6;border-radius:6px}
+  ::-webkit-scrollbar-track{background:#E9E3D6}
+  @keyframes popin{from{opacity:0;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+</style>
+</helmet>
+
+<div style="max-width:1320px;margin:0 auto;padding:0 20px 80px;overflow-x:clip">
+
+  <!-- TOP BAR -->
+  <div style="position:sticky;top:0;z-index:40;background:rgba(233,227,214,.9);backdrop-filter:blur(10px);margin:0 -20px;padding:14px 20px 11px;border-bottom:1px solid #D3C9B6">
+    <div style="display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:13px">
+        <div style="width:44px;height:44px;border-radius:10px;background:#1B5E43;display:flex;align-items:center;justify-content:center;color:#F4EFDF;font-weight:800;font-size:17px;letter-spacing:-.5px">CC</div>
+        <div>
+          <div style="font-size:19px;font-weight:800;letter-spacing:-.4px;line-height:1.1">{{ seller }}</div>
+          <div style="font-size:12.5px;color:#6B6459;margin-top:2px">eBay sports-card resale · <span class="tnum">{{ handle }}</span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="text-align:right;line-height:1.25">
+          <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:#8A8272;font-weight:700">Period covered</div>
+          <div class="tnum" style="font-size:14px;font-weight:600">{{ period }}</div>
+        </div>
+        <div style="width:1px;height:30px;background:#D3C9B6"></div>
+        <div style="display:flex;align-items:center;gap:7px;background:#FBF9F4;border:1px solid #E0D8C7;border-radius:9px;padding:7px 11px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#1B5E43"></span>
+          <div style="line-height:1.15">
+            <div style="font-size:9.5px;text-transform:uppercase;letter-spacing:.6px;color:#8A8272;font-weight:700">Data through</div>
+            <div class="tnum" style="font-size:12.5px;font-weight:600">{{ asOf }}</div>
+          </div>
+        </div>
+        <button onClick="{{ openImport }}" class="seg" style="display:flex;align-items:center;gap:6px;background:#221F1A;color:#F4EFDF;border:1px solid #221F1A;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:600">↑ Import / connect eBay</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="8">
+        <a href="{{ n.href }}" style="text-decoration:none;font-size:12px;font-weight:600;color:#524B3F;background:#FBF9F4;border:1px solid #E0D8C7;border-radius:8px;padding:6px 12px" class="seg">{{ n.label }}</a>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <section id="overview" style="scroll-margin-top:120px;margin-top:22px">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px">
+        <h2 style="margin:0;font-size:12px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:#8A8272">The headline numbers · Jan–Jun 2026</h2>
+        <span class="info" tabindex="0">i<span class="tip"><b>Your six most important numbers</b>Everything below is for the first half of 2026 (January through June). <i>The small ▲▼ compares June with May — your most recent month-over-month move.</i></span></span>
+      </div>
+      <div style="font-size:12px;color:#8A8272">▲▼ = <b style="color:#6B6459">June vs May</b></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.55fr 3fr;gap:14px" class="herowrap">
+      <div class="lift" style="position:relative;background:#164A35;border:1px solid #123C2B;border-radius:16px;padding:22px;color:#F4EFDF;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#F4EFDF;background:rgba(180,83,31,.5);border:1px solid rgba(214,140,90,.5);padding:3px 9px;border-radius:6px">★ Most important</span>
+          <span class="info infoR" tabindex="0" style="border-color:rgba(244,239,223,.4);color:#D8CFBB">i<span class="tip"><b>What's left after eBay & shipping</b>Money kept after every eBay fee, the postage you paid, and shipping supplies — but before what you paid for the cards themselves. <i>That last cost (card cost) isn't in these reports yet, so this is not final profit.</i></span></span>
+        </div>
+        <div style="margin-top:15px;font-size:13.5px;font-weight:600;color:#C4D6CB">Kept after eBay &amp; shipping</div>
+        <div class="tnum" style="font-size:46px;font-weight:700;letter-spacing:-1.5px;line-height:1;margin-top:6px">{{ north.val }}</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:13px;flex-wrap:wrap">
+          <sc-if value="{{ north.delta }}" hint-placeholder-val="{{ true }}">
+            <span class="tnum" style="display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;background:{{ north.delta.bg }};color:{{ north.delta.fg }};padding:4px 10px;border-radius:7px">{{ north.delta.text }} {{ north.delta.pct }}</span>
+          </sc-if>
+          <span style="font-size:12.5px;color:#AEC3B6">{{ north.sub }}</span>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(244,239,223,.16);font-size:11.5px;color:#AEC3B6;line-height:1.5">Card cost not yet included — see the waterfall. This is what you cleared, not final profit.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" class="kpigrid">
+        <sc-for list="{{ rest }}" as="k" hint-placeholder-count="5">
+          <div class="lift" style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:13px;padding:15px 16px;display:flex;flex-direction:column;justify-content:space-between">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <span style="font-size:12px;font-weight:600;color:#6B6459">{{ k.label }}</span>
+              <span class="info" tabindex="0">i<span class="tip"><b>{{ k.tipT }}</b>{{ k.tipD }}</span></span>
+            </div>
+            <div class="tnum" style="font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1;margin-top:12px">{{ k.val }}</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:10px;flex-wrap:wrap">
+              <sc-if value="{{ k.delta }}" hint-placeholder-val="{{ true }}">
+                <span class="tnum" style="display:inline-flex;align-items:center;gap:3px;font-size:11.5px;font-weight:700;color:{{ k.delta.fg }}">{{ k.delta.text }} {{ k.delta.pct }}</span>
+              </sc-if>
+              <span style="font-size:11px;color:#8A8272">{{ k.sub }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- SALES -->
+  <section id="sales" style="scroll-margin-top:120px;margin-top:34px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:16px;flex-wrap:wrap">
+      <span style="width:22px;height:22px;border-radius:6px;background:#1B5E43;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">1</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">Sales</h2>
+      <span class="info" tabindex="0">i<span class="tip"><b>What you sold, month by month</b>The dollar value of cards sold — not counting shipping or tax. <i>Added up straight from the eBay transaction ledger by the date each sale happened.</i></span></span>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <span style="font-size:11.5px;color:#8A8272;margin-right:2px">Group by</span>
+        <sc-for list="{{ granCtrl }}" as="g" hint-placeholder-count="3">
+          <button onClick="{{ g.onClick }}" class="seg" style="border:1px solid {{ g.bd }};background:{{ g.bg }};color:{{ g.fg }};font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px">{{ g.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px" class="salesgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px 14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px">
+          <div>
+            <div style="font-size:14px;font-weight:700">Sales by {{ granLabel }}</div>
+            <div style="font-size:11.5px;color:#8A8272">Click a bar to filter the card list below</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button onClick="{{ toggleCum }}" class="seg" style="border:1px solid {{ cumBd }};background:{{ cumBg }};color:{{ cumFg }};font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px">Running total</button>
+            <button onClick="{{ openSales }}" class="exp" title="Pop out detail" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#6B6459;border-radius:8px;padding:5px 8px;font-size:13px">⤢</button>
+          </div>
+        </div>
+        <div role="img" aria-label="{{ salesAria }}" style="position:relative;height:196px;margin-top:12px">
+          <div style="position:absolute;inset:0;display:flex;align-items:flex-end;gap:2.5%;padding-bottom:26px">
+            <sc-for list="{{ salesBars }}" as="b" hint-placeholder-count="6">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;cursor:pointer" onClick="{{ b.onClick }}">
+                <div class="tnum" style="font-size:11px;font-weight:700;color:#3A362E;margin-bottom:5px">{{ b.valFmt }}</div>
+                <div class="barh" style="width:76%;max-width:56px;height:{{ b.h }}%;background:{{ b.color }};border-radius:5px 5px 0 0;box-shadow:{{ b.shadow }}"></div>
+                <div class="tnum" style="position:absolute;bottom:0;font-size:11.5px;font-weight:600;color:{{ b.lblColor }}">{{ b.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showCum }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;bottom:26px;width:100%;height:calc(100% - 26px);pointer-events:none;overflow:visible">
+              <polyline points="{{ cumPts }}" fill="none" stroke="#B4531F" stroke-width="1.1" vector-effect="non-scaling-stroke" stroke-linejoin="round"></polyline>
+            </svg>
+          </sc-if>
+        </div>
+      </div>
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px 14px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px">Average sale price <span class="info" tabindex="0">i<span class="tip"><b>Typical price per card</b>Total sales value divided by the number of cards sold that month. <i>Line = price per card; the small number under each point is cards sold.</i></span></span></div>
+          </div>
+          <button onClick="{{ openAsp }}" class="exp" title="Pop out detail" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#6B6459;border-radius:8px;padding:5px 8px;font-size:13px">⤢</button>
+        </div>
+        <div style="position:relative;height:120px;margin-top:14px">
+          <svg viewBox="0 0 320 110" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible">
+            <polyline points="{{ aspPts }}" fill="none" stroke="#1B5E43" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>
+            <sc-for list="{{ aspDots }}" as="d" hint-placeholder-count="6">
+              <circle cx="{{ d.x }}" cy="{{ d.y }}" r="3.4" fill="#1B5E43" stroke="#FBF9F4" stroke-width="1.6"></circle>
+            </sc-for>
+          </svg>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:6px">
+          <sc-for list="{{ aspDots }}" as="d" hint-placeholder-count="6">
+            <div style="flex:1;text-align:center">
+              <div class="tnum" style="font-size:10.5px;font-weight:700;color:#1B5E43">{{ d.vFmt }}</div>
+              <div class="tnum" style="font-size:10px;color:#8A8272;margin-top:1px">{{ d.label }}</div>
+              <div class="tnum" style="font-size:9.5px;color:#B4531F;margin-top:2px">{{ d.units }} cards</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+        <div style="font-size:14px;font-weight:700">Sales by sport</div>
+        <span title="Sport is guessed from the words in each card title — eBay does not report a sport field." style="font-size:9.5px;font-weight:700;letter-spacing:.4px;color:#8A5A12;background:#F5E6C8;border:1px solid #E4CE9E;border-radius:5px;padding:2px 7px;cursor:help">ESTIMATED</span>
+        <span class="info" tabindex="0">i<span class="tip"><b>Which sports sell</b>Sales grouped by sport. <i>Sport is inferred from card titles (e.g. "Panini Prizm Football"), not an eBay field — treat it as a close guess.</i></span></span>
+        <button onClick="{{ openSport }}" class="exp" title="Pop out detail" style="margin-left:auto;border:1px solid #E0D8C7;background:#FBF9F4;color:#6B6459;border-radius:8px;padding:5px 8px;font-size:13px">⤢</button>
+      </div>
+      <sc-for list="{{ sportRows }}" as="s" hint-placeholder-count="6">
+        <div class="rowh" style="display:grid;grid-template-columns:150px 1fr 96px 74px;align-items:center;gap:12px;padding:7px 8px;border-radius:8px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:11px;height:11px;border-radius:3px;background:{{ s.color }}"></span>
+            <span style="font-size:12.5px;font-weight:600">{{ s.name }}</span>
+          </div>
+          <div style="height:20px;background:#EDE6D7;border-radius:5px;overflow:hidden">
+            <div style="height:100%;width:{{ s.w }}%;background:{{ s.color }};border-radius:5px"></div>
+          </div>
+          <div class="tnum" style="text-align:right;font-size:12.5px;font-weight:700">{{ s.itemFmt }}</div>
+          <div class="tnum" style="text-align:right;font-size:12px;color:#6B6459">{{ s.cards }} cards</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ORDERS -->
+  <section id="orders" style="scroll-margin-top:120px;margin-top:36px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:16px">
+      <span style="width:22px;height:22px;border-radius:6px;background:#2C6E63;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">2</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">Orders</h2>
+      <span class="info" tabindex="0">i<span class="tip"><b>How many sales, and how big</b>One order = one checkout. 116 orders in total, or 112 once you remove 4 refunds. <i>Average order value = sale price + shipping charged, divided by orders.</i></span></span>
+      <button onClick="{{ openOrders }}" class="exp" title="Pop out detail" style="margin-left:auto;border:1px solid #E0D8C7;background:#FBF9F4;color:#6B6459;border-radius:8px;padding:5px 8px;font-size:13px">⤢</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px" class="salesgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px 14px">
+        <div style="font-size:14px;font-weight:700">Orders per month</div>
+        <div style="font-size:11.5px;color:#8A8272">April jumped — flagged below</div>
+        <div role="img" aria-label="{{ ordersAria }}" style="position:relative;height:186px;margin-top:14px">
+          <div style="position:absolute;inset:0;display:flex;align-items:flex-end;gap:3%;padding-bottom:26px">
+            <sc-for list="{{ orderBars }}" as="b" hint-placeholder-count="6">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative">
+                <sc-if value="{{ b.isSpike }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:-2px;font-size:9.5px;font-weight:700;color:#8A5A12;background:#F5E6C8;border:1px solid #E4CE9E;border-radius:5px;padding:2px 6px;white-space:nowrap;z-index:2">▲ 2.1× normal</div>
+                </sc-if>
+                <div class="tnum" style="font-size:12px;font-weight:700;color:#3A362E;margin-bottom:5px">{{ b.val }}</div>
+                <div class="barh" style="width:70%;max-width:52px;height:{{ b.h }}%;background:{{ b.color }};border-radius:5px 5px 0 0"></div>
+                <div class="tnum" style="position:absolute;bottom:0;font-size:11.5px;font-weight:600;color:#6B6459">{{ b.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 20px 12px">
+          <div style="font-size:14px;font-weight:700">Average order value</div>
+          <div style="position:relative;height:66px;margin-top:10px">
+            <svg viewBox="0 0 320 60" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible">
+              <polyline points="{{ aovPts }}" fill="none" stroke="#2C6E63" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"></polyline>
+              <sc-for list="{{ aovDots }}" as="d" hint-placeholder-count="6">
+                <circle cx="{{ d.x }}" cy="{{ d.y }}" r="3" fill="#2C6E63" stroke="#FBF9F4" stroke-width="1.4"></circle>
+              </sc-for>
+            </svg>
+          </div>
+          <div style="display:flex;gap:4px;margin-top:4px">
+            <sc-for list="{{ aovDots }}" as="d" hint-placeholder-count="6">
+              <div style="flex:1;text-align:center">
+                <div class="tnum" style="font-size:10px;font-weight:700;color:#2C6E63">{{ d.vFmt }}</div>
+                <div class="tnum" style="font-size:9.5px;color:#8A8272">{{ d.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 20px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px">Refunds &amp; returns <span class="info" tabindex="0">i<span class="tip"><b>Money given back</b>4 refunds across the half. <i>Even on a refund you still paid the outbound postage and any ad fees, so each one is a small loss.</i></span></span></div>
+            <div class="tnum" style="font-size:12px;font-weight:700;color:#B23A2E">{{ refundTotalFmt }} · 4</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:12px">
+            <sc-for list="{{ refundRows }}" as="r" hint-placeholder-count="6">
+              <div style="flex:1;text-align:center;background:{{ r.bg }};border:1px solid {{ r.bd }};border-radius:8px;padding:7px 3px">
+                <div class="tnum" style="font-size:11px;color:#8A8272">{{ r.month }}</div>
+                <div class="tnum" style="font-size:13px;font-weight:700;color:{{ r.fg }}">{{ r.count }}</div>
+                <div class="tnum" style="font-size:9.5px;color:{{ r.fg }}">{{ r.amtFmt }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 18px;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <div style="font-size:14px;font-weight:700;margin-right:auto">Every order</div>
+        <input value="{{ oSearch }}" onInput="{{ onOSearch }}" placeholder="Search item…" style="font-size:12px;padding:6px 10px;border:1px solid #E0D8C7;border-radius:8px;width:170px;background:#F4F0E6"/>
+        <select value="{{ oMonth }}" onChange="{{ onOMonth }}" style="font-size:12px;padding:6px 9px;border:1px solid #E0D8C7;border-radius:8px;background:#F4F0E6">
+          <sc-for list="{{ monthOptsAll }}" as="m" hint-placeholder-count="7"><option value="{{ m }}">{{ m }}</option></sc-for>
+        </select>
+        <select value="{{ oStatus }}" onChange="{{ onOStatus }}" style="font-size:12px;padding:6px 9px;border:1px solid #E0D8C7;border-radius:8px;background:#F4F0E6">
+          <sc-for list="{{ statusOpts }}" as="m" hint-placeholder-count="3"><option value="{{ m }}">{{ m }}</option></sc-for>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:720px">
+          <thead><tr style="border-bottom:2px solid #E0D8C7">
+            <th style="text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:6px 8px">Date</th>
+            <th style="text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:6px 8px">Buyer location</th>
+            <th style="text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:6px 8px">Item</th>
+            <th style="text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:6px 8px">Sold for</th>
+            <th style="text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:6px 8px">Shipping charged</th>
+            <th style="text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:6px 8px">Status</th>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ ordersPage }}" as="o" hint-placeholder-count="12">
+              <tr class="rowh" style="border-bottom:1px solid #EFE9DB">
+                <td class="tnum" style="font-size:12px;padding:8px;white-space:nowrap;color:#524B3F">{{ o.date }}</td>
+                <td style="font-size:12px;padding:8px;white-space:nowrap"><span style="font-weight:600">{{ o.city }}</span><span class="tnum" style="color:#8A8272">, {{ o.state }}</span></td>
+                <td style="font-size:12px;padding:8px;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ o.title }}</td>
+                <td class="tnum" style="font-size:12px;padding:8px;text-align:right;font-weight:700">{{ o.soldFmt }}</td>
+                <td class="tnum" style="font-size:12px;padding:8px;text-align:right;color:#6B6459">{{ o.shipFmt }}</td>
+                <td style="padding:8px;text-align:center"><span style="font-size:10.5px;font-weight:700;color:{{ o.stFg }};background:{{ o.stBg }};padding:3px 9px;border-radius:20px">{{ o.status }}</span></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <div class="tnum" style="font-size:11.5px;color:#8A8272">{{ ordersCountLabel }}</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button onClick="{{ oPrev }}" class="seg" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#524B3F;font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px">‹ Prev</button>
+          <span class="tnum" style="font-size:12px;color:#6B6459;min-width:70px;text-align:center">{{ oPageLabel }}</span>
+          <button onClick="{{ oNext }}" class="seg" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#524B3F;font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHIPPING -->
+  <section id="shipping" style="scroll-margin-top:120px;margin-top:36px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:8px">
+      <span style="width:22px;height:22px;border-radius:6px;background:#B4531F;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">3</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">Shipping: what you charge vs what it costs</h2>
+      <span class="info" tabindex="0">i<span class="tip"><b>Are you covering postage?</b>Compares shipping you charged buyers against the postage labels you actually paid eBay. <i>Both figures come from the transaction ledger, matched order by order and by mail service.</i></span></span>
+      <button onClick="{{ openShip }}" class="exp" title="Pop out detail" style="margin-left:auto;border:1px solid #E0D8C7;background:#FBF9F4;color:#6B6459;border-radius:8px;padding:5px 8px;font-size:13px">⤢</button>
+    </div>
+    <p style="margin:0 0 16px;font-size:13px;color:#524B3F;max-width:940px;line-height:1.55">Short version: <b>envelope shipping breaks even, but heavier tracked packages lose about $1.16 each.</b> That gap is the entire reason shipping runs a small loss overall. Fix it by charging closer to real postage on the tracked-package listings.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px" class="lossgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:13px;padding:16px 18px">
+        <div style="font-size:12px;color:#6B6459;font-weight:600">Shipping charged to buyers</div>
+        <div class="tnum" style="font-size:26px;font-weight:700;margin-top:6px;color:#1B5E43">{{ shipChargedFmt }}</div>
+        <div class="tnum" style="font-size:11.5px;color:#8A8272;margin-top:4px">across the half</div>
+      </div>
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:13px;padding:16px 18px">
+        <div style="font-size:12px;color:#6B6459;font-weight:600">Postage you actually paid</div>
+        <div class="tnum" style="font-size:26px;font-weight:700;margin-top:6px;color:#B23A2E">{{ shipPostageFmt }}</div>
+        <div class="tnum" style="font-size:11.5px;color:#8A8272;margin-top:4px">≈ {{ avgCostPerCardFmt }} per card shipped</div>
+      </div>
+      <div style="background:#FBF3EC;border:1px solid #E7C9B0;border-radius:13px;padding:16px 18px">
+        <div style="font-size:12px;color:#8A4A1E;font-weight:600">Net shipping result</div>
+        <div class="tnum" style="font-size:26px;font-weight:700;margin-top:6px;color:#B23A2E">{{ shipNetFmt }}</div>
+        <div class="tnum" style="font-size:11.5px;color:#8A5A12;margin-top:4px">a small loss, all from tracked packages</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px" class="salesgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:3px">By mail service — the per-card math</div>
+        <div style="font-size:11.5px;color:#8A8272;margin-bottom:14px">Average per order: what you charged vs what postage cost</div>
+        <sc-for list="{{ svcRows }}" as="s" hint-placeholder-count="2">
+          <div style="border:1px solid {{ s.bd }};background:{{ s.bg }};border-radius:11px;padding:13px 15px;margin-bottom:11px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+              <div style="font-size:13px;font-weight:700">{{ s.service }}</div>
+              <div style="display:flex;align-items:center;gap:7px">
+                <span style="font-size:10.5px;font-weight:700;color:{{ s.tagFg }};background:{{ s.tagBg }};border:1px solid {{ s.tagBd }};padding:2px 9px;border-radius:20px">{{ s.verdict }}</span>
+                <span class="tnum" style="font-size:11.5px;color:#6B6459">{{ s.orders }} orders</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">
+              <div>
+                <div style="font-size:10.5px;color:#8A8272">You charge (avg)</div>
+                <div class="tnum" style="font-size:16px;font-weight:700;color:#1B5E43">{{ s.avgChargedFmt }}</div>
+              </div>
+              <div>
+                <div style="font-size:10.5px;color:#8A8272">Postage costs (avg)</div>
+                <div class="tnum" style="font-size:16px;font-weight:700;color:#B23A2E">{{ s.avgPostageFmt }}</div>
+              </div>
+              <div>
+                <div style="font-size:10.5px;color:#8A8272">Per-order result</div>
+                <div class="tnum" style="font-size:16px;font-weight:700;color:{{ s.marginFg }}">{{ s.avgMarginFmt }}</div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display:flex;gap:8px;font-size:11.5px;color:#524B3F;background:#F4F0E6;border:1px solid #E0D8C7;border-radius:9px;padding:10px 12px;margin-top:3px;line-height:1.5"><span>→</span><span><b>What to do:</b> raise the tracked-package (USPS Ground Advantage) shipping charge by about <b class="tnum">$1.20</b>, or to roughly <b class="tnum">$5.50</b>. Envelope pricing is already fine — leave it.</span></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 20px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:3px">Every order, sorted by shipping result</div>
+          <div style="font-size:11.5px;color:#8A8272;margin-bottom:12px">Of {{ shipLabeled }} shipped orders</div>
+          <sc-for list="{{ shipDist }}" as="d" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+              <span style="font-size:12px;font-weight:600;width:120px;color:{{ d.fg }}">{{ d.label }}</span>
+              <div style="flex:1;height:16px;background:#EDE6D7;border-radius:5px;overflow:hidden"><div style="height:100%;width:{{ d.w }}%;background:{{ d.color }};border-radius:5px"></div></div>
+              <span class="tnum" style="font-size:12.5px;font-weight:700;width:34px;text-align:right;color:{{ d.fg }}">{{ d.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 20px">
+          <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px">Try a shipping change <span class="info infoR" tabindex="0">i<span class="tip"><b>Model a price change</b>Drag to add a flat amount to every shipping-charged order. <i>Shows what your net shipping result would become and where you break even.</i></span></span></div>
+          <div style="margin-top:12px;background:#F4F0E6;border:1px solid #E0D8C7;border-radius:10px;padding:12px 13px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:11.5px;font-weight:600;color:#524B3F">Add per shipped order</span>
+              <span class="tnum" style="font-size:13px;font-weight:700;color:#1B5E43">+{{ whatIfFmt }}</span>
+            </div>
+            <input type="range" min="0" max="2" step="0.05" value="{{ whatIf }}" onInput="{{ onWhatIf }}" style="width:100%;margin:10px 0 4px;accent-color:#B4531F"/>
+            <div style="display:flex;align-items:center;justify-content:space-between;font-size:11.5px">
+              <span style="color:#6B6459">New net shipping result</span>
+              <span class="tnum" style="font-weight:700;color:{{ whatIfNetFg }}">{{ whatIfNetFmt }}</span>
+            </div>
+            <div class="tnum" style="font-size:10.5px;color:#8A8272;margin-top:6px">Break even at about <b style="color:#B4531F">+{{ breakEvenFmt }}</b> per order.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRAFFIC -->
+  <section id="traffic" style="scroll-margin-top:120px;margin-top:36px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:8px;flex-wrap:wrap">
+      <span style="width:22px;height:22px;border-radius:6px;background:#A9791F;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">4</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">Traffic &amp; buyer funnel</h2>
+      <span style="font-size:10px;font-weight:700;letter-spacing:.4px;color:#8A5A12;background:#F5E6C8;border:1px solid #E4CE9E;border-radius:20px;padding:3px 11px">SNAPSHOT — LAST 31 DAYS, NOT MONTHLY</span>
+      <span class="info" tabindex="0">i<span class="tip"><b>How buyers find and buy</b>From listing views to sales, versus the best sellers in your category. <i>This is a 31-day snapshot from eBay's Listing Quality report — a single point in time, not a month-by-month trend.</i></span></span>
+    </div>
+    <div style="display:flex;gap:11px;align-items:flex-start;background:#FBF3EC;border:1px solid #E7C9B0;border-radius:11px;padding:13px 15px;margin:12px 0 18px;max-width:980px">
+      <span style="font-size:15px;line-height:1">⚠️</span>
+      <div style="font-size:12.5px;color:#8A4A1E;line-height:1.5"><b>These are last-31-days figures, not a monthly series.</b> They come from eBay's Listing Quality report and reflect one recent window (as of June 28, 2026). True month-by-month traffic needs eBay's Traffic Report — the dark panel on the right fills in once that's connected.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:16px" class="salesgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px">
+        <div style="font-size:14px;font-weight:700">Buyer funnel — {{ funnelCat }}</div>
+        <div style="font-size:11.5px;color:#8A8272;margin-bottom:16px">Your listings vs the top 10% of sellers in this category</div>
+        <sc-for list="{{ funnelStages }}" as="f" hint-placeholder-count="3">
+          <div style="margin-bottom:18px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:5px">{{ f.label }} <span class="info" tabindex="0">i<span class="tip"><b>{{ f.tipT }}</b>{{ f.tipD }}</span></span></span>
+              <span class="tnum" style="font-size:13px;font-weight:700;color:#1B5E43">{{ f.youFmt }}</span>
+            </div>
+            <div style="position:relative;height:26px;background:#EDE6D7;border-radius:6px;overflow:hidden">
+              <div style="height:100%;width:{{ f.youW }}%;background:#1B5E43;border-radius:6px;min-width:3px"></div>
+              <sc-if value="{{ f.hasTop }}" hint-placeholder-val="{{ true }}">
+                <div style="position:absolute;top:-3px;bottom:-3px;left:{{ f.topW }}%;width:2px;background:#B4531F"></div>
+                <div style="position:absolute;top:2px;left:{{ f.topW }}%;transform:translateX(4px);font-size:9.5px;font-weight:700;color:#8A4A1E;white-space:nowrap" class="tnum">top 10%: {{ f.topFmt }}</div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ f.hasTop }}" hint-placeholder-val="{{ true }}">
+              <div class="tnum" style="font-size:10.5px;color:#B23A2E;margin-top:4px">{{ f.gap }}</div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <div style="font-size:10.5px;color:#8A8272;border-top:1px solid #EFE9DB;padding-top:10px;margin-top:4px">Green bar = your rate. <span style="color:#B4531F;font-weight:700">│</span> orange line = the top-10% benchmark. "Sales conversion" means sales divided by listing views.</div>
+      </div>
+      <div style="position:relative;background:#26231D;border:1px solid #34302A;border-radius:14px;padding:18px 20px;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#4A453C"></span>
+          <div style="font-size:14px;font-weight:700;color:#8A8272">Traffic by month</div>
+          <span style="margin-left:auto;font-size:9.5px;font-weight:700;letter-spacing:.5px;color:#8A8272;border:1px solid #4A453C;border-radius:20px;padding:2px 9px">NEEDS TRAFFIC REPORT</span>
+        </div>
+        <div style="font-size:11.5px;color:#635C50;margin-top:4px">Fills in once monthly views &amp; impressions are connected</div>
+        <div style="position:relative;height:150px;margin-top:18px;border-left:1.5px dashed #3A362E;border-bottom:1.5px dashed #3A362E">
+          <sc-for list="{{ ghostGrid }}" as="g" hint-placeholder-count="4">
+            <div style="position:absolute;left:0;right:0;top:{{ g.top }}%;border-top:1px dashed #2E2A24"></div>
+          </sc-for>
+          <div style="position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:space-around;padding:0 6px 0 2px">
+            <sc-for list="{{ ghostBars }}" as="b" hint-placeholder-count="6">
+              <div style="width:9%;height:{{ b.h }}%;background:#2E2A24;border-radius:4px 4px 0 0"></div>
+            </sc-for>
+          </div>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:11.5px;color:#4A453C;font-weight:600">Views &amp; impressions by month — pending</span>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-around;margin-top:8px">
+          <sc-for list="{{ months }}" as="m" hint-placeholder-count="6"><span class="tnum" style="font-size:10px;color:#4A453C">{{ m }}</span></sc-for>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 18px;margin-top:16px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:700">Listings to fix, by category</div>
+        <span class="info" tabindex="0">i<span class="tip"><b>Where to improve listings</b>Your 7 biggest categories, ranked by sales standing against other sellers. <i>Green = top 1%, amber = top 3%, red = below. The last column is eBay's specific fix.</i></span></span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:780px">
+          <thead><tr style="border-bottom:2px solid #E0D8C7">
+            <th style="text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:7px 8px">Category</th>
+            <th style="text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:7px 8px">Condition</th>
+            <th style="text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:7px 8px">Sales rank</th>
+            <th style="text-align:right;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:7px 8px">Standing</th>
+            <th style="text-align:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:7px 8px">To fix</th>
+            <th style="text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:7px 8px">eBay's recommendation</th>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ lqRows }}" as="c" hint-placeholder-count="7">
+              <tr class="rowh" style="border-bottom:1px solid #EFE9DB">
+                <td style="font-size:12px;padding:9px 8px;font-weight:600;max-width:210px">{{ c.category }}</td>
+                <td class="tnum" style="font-size:11.5px;padding:9px 8px;color:#6B6459">{{ c.condition }}</td>
+                <td class="tnum" style="font-size:12px;padding:9px 8px;text-align:right;white-space:nowrap">{{ c.rankFmt }}<span style="color:#B8AF9C"> / {{ c.totalFmt }}</span></td>
+                <td style="padding:9px 8px;text-align:right"><span class="tnum" style="font-size:11.5px;font-weight:700;color:{{ c.ragFg }};background:{{ c.ragBg }};padding:3px 8px;border-radius:6px;white-space:nowrap">{{ c.pctFmt }}</span></td>
+                <td class="tnum" style="font-size:12px;padding:9px 8px;text-align:center;font-weight:700;color:{{ c.impFg }}">{{ c.improve }}</td>
+                <td style="font-size:11.5px;padding:9px 8px;color:#524B3F;line-height:1.45;min-width:260px">{{ c.rec }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARGES -->
+  <section id="charges" style="scroll-margin-top:120px;margin-top:36px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:8px;flex-wrap:wrap">
+      <span style="width:22px;height:22px;border-radius:6px;background:#6E3A5A;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">5</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">What eBay charges you</h2>
+      <span class="info" tabindex="0">i<span class="tip"><b>Every fee, month by month</b>All the money eBay takes: sale fees, ad fees, listing fees, the store subscription, postage, plus your shipping supplies. <i>Switch between "everything" and just the fees shown on the sales report.</i></span></span>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <span style="font-size:11.5px;color:#8A8272;margin-right:2px">Show</span>
+        <sc-for list="{{ feeCtrl }}" as="g" hint-placeholder-count="2">
+          <button onClick="{{ g.onClick }}" class="seg" style="border:1px solid {{ g.bd }};background:{{ g.bg }};color:{{ g.fg }};font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px">{{ g.label }}</button>
+        </sc-for>
+        <button onClick="{{ openCharges }}" class="exp" title="Pop out detail" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#6B6459;border-radius:8px;padding:5px 8px;font-size:13px">⤢</button>
+      </div>
+    </div>
+    <p style="margin:0 0 14px;font-size:12.5px;color:#524B3F;max-width:960px;line-height:1.5">{{ feeViewNote }}</p>
+
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px" class="salesgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 20px 14px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:14px;font-weight:700">Fees by month</div>
+          <div class="tnum" style="font-size:11.5px;color:#8A8272">total {{ chargesTotalFmt }}</div>
+        </div>
+        <div role="img" aria-label="{{ chargesAria }}" style="position:relative;height:210px;margin-top:14px">
+          <div style="position:absolute;inset:0;display:flex;align-items:flex-end;gap:3.5%;padding-bottom:24px">
+            <sc-for list="{{ stackedBars }}" as="b" hint-placeholder-count="6">
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative">
+                <div class="tnum" style="font-size:10.5px;font-weight:700;color:#3A362E;margin-bottom:4px">{{ b.totalFmt }}</div>
+                <div class="barh" style="width:74%;max-width:52px;height:{{ b.h }}%;display:flex;flex-direction:column-reverse;border-radius:5px 5px 0 0;overflow:hidden">
+                  <sc-for list="{{ b.segs }}" as="s" hint-placeholder-count="4">
+                    <div title="{{ s.title }}" style="height:{{ s.h }}%;background:{{ s.color }}"></div>
+                  </sc-for>
+                </div>
+                <div class="tnum" style="position:absolute;bottom:0;font-size:11.5px;font-weight:600;color:#6B6459">{{ b.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px 12px;margin-top:8px;border-top:1px solid #EFE9DB;padding-top:11px">
+          <sc-for list="{{ feeLegend }}" as="l" hint-placeholder-count="8">
+            <div style="display:flex;align-items:center;gap:5px">
+              <span style="width:9px;height:9px;border-radius:2px;background:{{ l.color }}"></span>
+              <span style="font-size:10.5px;color:#524B3F">{{ l.label }}</span>
+              <span class="tnum" style="font-size:10.5px;color:#8A8272;font-weight:600">{{ l.valFmt }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:16px 20px 12px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px">Fee load <span class="info" tabindex="0">i<span class="tip"><b>Fees as a share of sales</b>All charges divided by sales value. <i>A high month means fees ate more of each dollar — usually because low-price cards carry fixed fees that don't shrink.</i></span></span></div>
+          <div class="tnum" style="font-size:11.5px;color:#8A8272">half-year {{ feeLoadH1 }}</div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:16px;align-items:flex-end;height:120px">
+          <sc-for list="{{ feeLoadBars }}" as="b" hint-placeholder-count="6">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">
+              <div class="tnum" style="font-size:10px;font-weight:700;color:{{ b.fg }};margin-bottom:3px">{{ b.valFmt }}</div>
+              <div class="barh" style="width:64%;height:{{ b.h }}%;background:{{ b.color }};border-radius:4px 4px 0 0"></div>
+              <div class="tnum" style="font-size:10.5px;color:#8A8272;margin-top:5px">{{ b.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:11px;color:#8A8272;margin-top:12px;line-height:1.5;border-top:1px solid #EFE9DB;padding-top:10px">Higher in months full of cheap cards (April, June) — the fixed fee per sale is a bigger slice of a $3 card than a $90 card.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WATERFALL -->
+  <section id="waterfall" style="scroll-margin-top:120px;margin-top:36px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:8px">
+      <span style="width:22px;height:22px;border-radius:6px;background:#1B5E43;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">6</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">From sales to what you kept</h2>
+      <span class="info" tabindex="0">i<span class="tip"><b>Where every dollar went</b>Start with sales, add shipping charged, subtract each cost, and land on what you kept. <i>Every line traces to the ledger and it reconciles to the headline number exactly.</i></span></span>
+    </div>
+    <p style="margin:0 0 16px;font-size:12.5px;color:#524B3F;max-width:960px;line-height:1.5"><b style="color:#8A4A1E">Card cost is not in these reports yet.</b> So the last two lines stay blank on purpose — "kept after eBay &amp; shipping" is not your final profit until you add what you paid for the cards.</p>
+    <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:12px 20px 16px">
+      <sc-for list="{{ wfRows }}" as="w" hint-placeholder-count="13">
+        <div class="rowh" style="display:grid;grid-template-columns:250px 1fr 118px;align-items:center;gap:14px;padding:9px 8px;border-radius:8px;border-bottom:1px solid {{ w.border }};background:{{ w.rowBg }}">
+          <div>
+            <div style="font-size:13px;font-weight:{{ w.weight }};color:{{ w.labelColor }}">{{ w.label }}</div>
+            <sc-if value="{{ w.sub }}" hint-placeholder-val="{{ true }}"><div style="font-size:10.5px;color:#8A8272;margin-top:1px">{{ w.sub }}</div></sc-if>
+          </div>
+          <div style="position:relative;height:22px">
+            <div style="position:absolute;top:0;bottom:0;left:{{ w.barLeft }}%;width:{{ w.barW }}%;background:{{ w.barColor }};border-radius:4px;min-width:2px;opacity:{{ w.barOpacity }}"></div>
+          </div>
+          <div class="tnum" style="text-align:right;font-size:{{ w.valSize }};font-weight:{{ w.weight }};color:{{ w.valColor }}">{{ w.disp }}</div>
+        </div>
+      </sc-for>
+      <div style="display:flex;justify-content:flex-end;gap:18px;margin-top:12px;padding:0 8px;font-size:11px;color:#8A8272">
+        <span><span style="display:inline-block;width:9px;height:9px;background:#1B5E43;border-radius:2px;margin-right:4px"></span>added</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#B23A2E;border-radius:2px;margin-right:4px"></span>taken out</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#164A35;border-radius:2px;margin-right:4px"></span>subtotal</span>
+        <span><span style="display:inline-block;width:9px;height:9px;background:#C7BCA6;border-radius:2px;margin-right:4px"></span>card cost — pending</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section id="cards" style="scroll-margin-top:120px;margin-top:36px">
+    <div style="display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:2px solid #221F1A;margin-bottom:8px">
+      <span style="width:22px;height:22px;border-radius:6px;background:#221F1A;display:inline-flex;align-items:center;justify-content:center;color:#F4EFDF;font-size:12px;font-weight:800">7</span>
+      <h2 style="margin:0;font-size:21px;font-weight:800;letter-spacing:-.4px">Every card</h2>
+      <span class="info" tabindex="0">i<span class="tip"><b>All 112 cards, one by one</b>Sort or filter, then click any row to open its full money breakdown and the reason it landed where it did.</span></span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0 18px" class="lossgrid">
+      <sc-for list="{{ lossCards }}" as="L" hint-placeholder-count="3">
+        <div style="background:#FBF9F4;border:1px solid {{ L.bd }};border-radius:12px;padding:13px 15px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="width:9px;height:9px;border-radius:2px;background:{{ L.accent }}"></span>
+            <div style="font-size:12.5px;font-weight:700;color:{{ L.accent }};flex:1">{{ L.title }}</div>
+            <div class="tnum" style="font-size:12px;font-weight:700;color:{{ L.accent }}">{{ L.count }} · {{ L.totalFmt }}</div>
+          </div>
+          <div style="font-size:11px;color:#6B6459;margin-top:5px;line-height:1.45">{{ L.desc }}</div>
+          <div style="margin-top:9px;border-top:1px solid #EFE9DB;padding-top:8px">
+            <sc-for list="{{ L.items }}" as="it" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 0">
+                <span style="font-size:11px;color:#524B3F;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.short }}</span>
+                <span class="tnum" style="font-size:11px;font-weight:600;color:#B23A2E;white-space:nowrap">{{ it.nasFmt }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px" class="salesgrid">
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:13px;padding:14px 16px">
+        <div style="font-size:13px;font-weight:700;color:#1B5E43;margin-bottom:8px">▲ Best cards — and why</div>
+        <sc-for list="{{ topPerf }}" as="t" hint-placeholder-count="5">
+          <div class="rowh" style="padding:7px 6px;border-radius:7px;border-bottom:1px solid #EFE9DB">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="width:8px;height:8px;border-radius:2px;background:{{ t.sportColor }}"></span>
+              <span style="flex:1;font-size:11.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.short }}</span>
+              <span class="tnum" style="font-size:11.5px;font-weight:700;color:#1B5E43">{{ t.nasFmt }}</span>
+            </div>
+            <div style="font-size:10.5px;color:#6B6459;margin-top:3px;line-height:1.4;padding-left:17px">{{ t.why }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:13px;padding:14px 16px">
+        <div style="font-size:13px;font-weight:700;color:#B23A2E;margin-bottom:8px">▼ Worst cards — and why</div>
+        <sc-for list="{{ botPerf }}" as="t" hint-placeholder-count="5">
+          <div class="rowh" style="padding:7px 6px;border-radius:7px;border-bottom:1px solid #EFE9DB">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="width:8px;height:8px;border-radius:2px;background:{{ t.sportColor }}"></span>
+              <span style="flex:1;font-size:11.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ t.short }}</span>
+              <span class="tnum" style="font-size:11.5px;font-weight:700;color:{{ t.nasFg }}">{{ t.nasFmt }}</span>
+            </div>
+            <div style="font-size:10.5px;color:#6B6459;margin-top:3px;line-height:1.4;padding-left:17px">{{ t.why }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:14px 16px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+        <input value="{{ cSearch }}" onInput="{{ onCSearch }}" placeholder="Search card title…" style="font-size:12px;padding:7px 11px;border:1px solid #E0D8C7;border-radius:8px;width:200px;background:#F4F0E6"/>
+        <select value="{{ cSport }}" onChange="{{ onCSport }}" style="font-size:12px;padding:7px 9px;border:1px solid #E0D8C7;border-radius:8px;background:#F4F0E6"><sc-for list="{{ sportOpts }}" as="o" hint-placeholder-count="7"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+        <select value="{{ cBand }}" onChange="{{ onCBand }}" style="font-size:12px;padding:7px 9px;border:1px solid #E0D8C7;border-radius:8px;background:#F4F0E6"><sc-for list="{{ bandOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+        <select value="{{ cMonth }}" onChange="{{ onCMonth }}" style="font-size:12px;padding:7px 9px;border:1px solid #E0D8C7;border-radius:8px;background:#F4F0E6"><sc-for list="{{ monthOptsAll }}" as="o" hint-placeholder-count="7"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+        <select value="{{ cBucket }}" onChange="{{ onCBucket }}" style="font-size:12px;padding:7px 9px;border:1px solid #E0D8C7;border-radius:8px;background:#F4F0E6"><sc-for list="{{ bucketOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <button onClick="{{ clearFilters }}" class="seg" style="border:1px solid #E0D8C7;background:#F4F0E6;color:#6B6459;font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;margin-left:auto">Clear</button>
+      </div>
+      <div style="font-size:11px;color:#8A8272;margin-bottom:6px">Click any row for the full breakdown ↓</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;min-width:820px">
+          <thead><tr style="border-bottom:2px solid #E0D8C7">
+            <sc-for list="{{ cardCols }}" as="c" hint-placeholder-count="8">
+              <th onClick="{{ c.onClick }}" style="text-align:{{ c.align }};font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:{{ c.color }};font-weight:700;padding:7px 8px;cursor:pointer;white-space:nowrap;user-select:none">{{ c.label }}{{ c.arrow }}</th>
+            </sc-for>
+          </tr></thead>
+          <sc-for list="{{ cardsPage }}" as="c" hint-placeholder-count="12">
+            <tbody>
+              <tr class="rowh" style="border-bottom:1px solid #EFE9DB;cursor:pointer" onClick="{{ c.toggle }}">
+                <td style="font-size:11.5px;padding:8px;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="color:#B8AF9C;margin-right:5px">{{ c.caret }}</span>{{ c.title }}</td>
+                <td style="padding:8px"><span style="font-size:10px;font-weight:700;color:{{ c.sportFg }};background:{{ c.sportBg }};padding:2px 7px;border-radius:5px;white-space:nowrap">{{ c.sport }}</span></td>
+                <td class="tnum" style="font-size:11.5px;padding:8px;text-align:center;color:#6B6459">{{ c.month }}</td>
+                <td class="tnum" style="font-size:11.5px;padding:8px;text-align:right;font-weight:600">{{ c.salesFmt }}</td>
+                <td class="tnum" style="font-size:11.5px;padding:8px;text-align:right;color:#6B6459">{{ c.feesFmt }}</td>
+                <td class="tnum" style="font-size:11.5px;padding:8px;text-align:right;color:#6B6459">{{ c.suppliesFmt }}</td>
+                <td class="tnum" style="font-size:11.5px;padding:8px;text-align:right;font-weight:700;color:{{ c.nasFg }}">{{ c.nasFmt }}</td>
+                <td style="padding:8px;text-align:center"><span style="font-size:9.5px;font-weight:700;color:{{ c.tagFg }};background:{{ c.tagBg }};padding:2px 7px;border-radius:5px;white-space:nowrap">{{ c.tag }}</span></td>
+              </tr>
+              <sc-if value="{{ c.expanded }}" hint-placeholder-val="{{ false }}">
+                <tr style="background:#F4F0E6"><td colspan="8" style="padding:0">
+                  <div style="padding:16px 18px;animation:popin .18s ease">
+                    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:20px" class="salesgrid">
+                      <div>
+                        <div style="font-size:12.5px;font-weight:700;margin-bottom:9px">{{ c.fullTitle }}</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11px;color:#6B6459;margin-bottom:12px">
+                          <span>Sold <b class="tnum" style="color:#221F1A">{{ c.dDate }}</b></span>
+                          <span>to <b style="color:#221F1A">{{ c.dLoc }}</b></span>
+                          <span>via <b style="color:#221F1A">{{ c.dChannel }}</b></span>
+                          <span>{{ c.dService }}</span>
+                        </div>
+                        <div style="font-size:11.5px;color:#524B3F;background:#FBF3EC;border:1px solid #E7C9B0;border-radius:8px;padding:9px 11px;line-height:1.5">{{ c.why }}</div>
+                      </div>
+                      <div style="background:#FBF9F4;border:1px solid #E0D8C7;border-radius:10px;padding:12px 14px">
+                        <sc-for list="{{ c.ledger }}" as="row" hint-placeholder-count="7">
+                          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid {{ row.bd }}">
+                            <span style="font-size:11.5px;font-weight:{{ row.weight }};color:{{ row.labelC }}">{{ row.label }}</span>
+                            <span class="tnum" style="font-size:12px;font-weight:{{ row.weight }};color:{{ row.valC }}">{{ row.val }}</span>
+                          </div>
+                        </sc-for>
+                      </div>
+                    </div>
+                  </div>
+                </td></tr>
+              </sc-if>
+            </tbody>
+          </sc-for>
+        </table>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+        <div class="tnum" style="font-size:11.5px;color:#8A8272">{{ cardsCountLabel }}</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button onClick="{{ cPrev }}" class="seg" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#524B3F;font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px">‹ Prev</button>
+          <span class="tnum" style="font-size:12px;color:#6B6459;min-width:70px;text-align:center">{{ cPageLabel }}</span>
+          <button onClick="{{ cNext }}" class="seg" style="border:1px solid #E0D8C7;background:#FBF9F4;color:#524B3F;font-size:12px;font-weight:600;padding:5px 11px;border-radius:8px">Next ›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div style="margin-top:32px;background:#FBF9F4;border:1px solid #E0D8C7;border-radius:14px;padding:18px 22px">
+    <div style="font-size:12.5px;font-weight:700;margin-bottom:8px">How these numbers were made</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 28px" class="footgrid">
+      <sc-for list="{{ methodology }}" as="m" hint-placeholder-count="6">
+        <div style="display:flex;gap:8px;font-size:11.5px;color:#6B6459;line-height:1.5"><span style="color:#1B5E43;font-weight:700">›</span><span>{{ m }}</span></div>
+      </sc-for>
+    </div>
+    <div class="tnum" style="font-size:11px;color:#8A8272;margin-top:14px;border-top:1px solid #EFE9DB;padding-top:11px">Built from your eBay transaction, orders, sales &amp; listing-quality reports plus your per-card supplies sheet ($0.6462 a card). Data through {{ asOf }}.</div>
+  </div>
+
+  <!-- POP-OUT DETAIL MODAL -->
+  <sc-if value="{{ modal }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeModal }}" style="position:fixed;inset:0;background:rgba(34,31,26,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:40px 20px;overflow:auto">
+      <div onClick="{{ stop }}" style="background:#F4F0E6;border:1px solid #DDD3C0;border-radius:16px;max-width:920px;width:100%;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:popin .2s ease;overflow:hidden">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:20px 24px;border-bottom:1px solid #E0D8C7;background:#FBF9F4">
+          <div style="flex:1">
+            <div style="font-size:18px;font-weight:800;letter-spacing:-.3px">{{ modal.title }}</div>
+            <div style="font-size:12.5px;color:#6B6459;margin-top:4px;line-height:1.5;max-width:640px">{{ modal.intro }}</div>
+          </div>
+          <button onClick="{{ closeModal }}" class="seg" style="border:1px solid #E0D8C7;background:#F4F0E6;color:#524B3F;border-radius:8px;padding:6px 11px;font-size:16px;line-height:1;font-weight:600">✕</button>
+        </div>
+        <div style="padding:18px 24px 24px;max-height:70vh;overflow:auto">
+          <sc-if value="{{ modal.note }}" hint-placeholder-val="{{ true }}">
+            <div style="font-size:12px;color:#524B3F;background:#FBF3EC;border:1px solid #E7C9B0;border-radius:9px;padding:11px 13px;margin-bottom:16px;line-height:1.5">{{ modal.note }}</div>
+          </sc-if>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;min-width:520px">
+              <thead><tr style="border-bottom:2px solid #E0D8C7">
+                <sc-for list="{{ modal.cols }}" as="col" hint-placeholder-count="5">
+                  <th style="text-align:{{ col.align }};font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:#8A8272;font-weight:700;padding:8px 10px;white-space:nowrap">{{ col.label }}</th>
+                </sc-for>
+              </tr></thead>
+              <tbody>
+                <sc-for list="{{ modal.rows }}" as="row" hint-placeholder-count="6">
+                  <tr class="rowh" style="border-bottom:1px solid #EFE9DB;background:{{ row.bg }}">
+                    <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="5">
+                      <td class="{{ cell.mono }}" style="text-align:{{ cell.align }};font-size:12px;padding:8px 10px;font-weight:{{ cell.weight }};color:{{ cell.color }};white-space:nowrap">{{ cell.v }}</td>
+                    </sc-for>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- IMPORT / API MODAL -->
+  <sc-if value="{{ importOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeImport }}" style="position:fixed;inset:0;background:rgba(34,31,26,.55);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;z-index:110;padding:40px 20px;overflow:auto">
+      <div onClick="{{ stop }}" style="background:#F4F0E6;border:1px solid #DDD3C0;border-radius:16px;max-width:820px;width:100%;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:popin .2s ease;overflow:hidden">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:20px 24px;border-bottom:1px solid #E0D8C7;background:#FBF9F4">
+          <div style="flex:1">
+            <div style="font-size:18px;font-weight:800;letter-spacing:-.3px">Bring in your eBay data</div>
+            <div style="font-size:12.5px;color:#6B6459;margin-top:4px">Drop fresh report files now, or set up an automatic eBay connection for later.</div>
+          </div>
+          <button onClick="{{ closeImport }}" class="seg" style="border:1px solid #E0D8C7;background:#F4F0E6;color:#524B3F;border-radius:8px;padding:6px 11px;font-size:16px;line-height:1;font-weight:600">✕</button>
+        </div>
+        <div style="padding:20px 24px 24px;max-height:74vh;overflow:auto">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8272;margin-bottom:10px">1 · Upload report files</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px">
+            <sc-for list="{{ importSlots }}" as="s" hint-placeholder-count="4">
+              <label style="display:block;background:#FBF9F4;border:1.5px dashed {{ s.bd }};border-radius:11px;padding:14px 15px;cursor:pointer">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                  <div style="font-size:12.5px;font-weight:700;color:{{ s.titleC }}">{{ s.title }}</div>
+                  <span style="font-size:15px">{{ s.icon }}</span>
+                </div>
+                <div style="font-size:10.5px;color:#8A8272;margin-top:3px">{{ s.hint }}</div>
+                <div class="tnum" style="font-size:11px;color:{{ s.statusC }};margin-top:8px;font-weight:600">{{ s.status }}</div>
+                <input type="file" accept=".csv,.xlsx" onChange="{{ s.onFile }}" style="display:none"/>
+              </label>
+            </sc-for>
+          </div>
+          <div style="font-size:11px;color:#8A8272;margin-top:10px;line-height:1.5">Files are read and checked right here in your browser. In this preview the dashboard keeps showing the January–June data already loaded; wiring uploads through to a full recalculation is the next backend step.</div>
+
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#8A8272;margin:22px 0 10px">2 · Connect eBay directly <span style="font-weight:700;color:#8A5A12;background:#F5E6C8;border:1px solid #E4CE9E;border-radius:20px;padding:2px 9px;font-size:9.5px;letter-spacing:.3px">ROADMAP</span></div>
+          <div style="font-size:12px;color:#524B3F;margin-bottom:12px;line-height:1.5">Instead of monthly uploads, eBay's developer connection can refresh this automatically. Each part of the dashboard maps to a specific eBay feed:</div>
+          <sc-for list="{{ apiRoadmap }}" as="a" hint-placeholder-count="4">
+            <div style="display:flex;align-items:flex-start;gap:12px;background:#FBF9F4;border:1px solid #E0D8C7;border-radius:10px;padding:12px 14px;margin-bottom:9px">
+              <span style="width:8px;height:8px;border-radius:2px;background:{{ a.color }};margin-top:5px;flex:none"></span>
+              <div style="flex:1">
+                <div style="font-size:12.5px;font-weight:700">{{ a.api }}</div>
+                <div style="font-size:11.5px;color:#6B6459;margin-top:2px;line-height:1.45">{{ a.feeds }}</div>
+              </div>
+              <span style="font-size:9.5px;font-weight:700;color:#8A8272;border:1px solid #D3C9B6;border-radius:20px;padding:3px 9px;white-space:nowrap">{{ a.status }}</span>
+            </div>
+          </sc-for>
+          <button class="seg" style="width:100%;margin-top:8px;border:1px solid #C7BCA6;background:#EDE6D7;color:#8A8272;border-radius:9px;padding:11px;font-size:12.5px;font-weight:700;cursor:not-allowed">Connect eBay account — coming soon</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <style>
+    @media (max-width:1000px){ .herowrap{grid-template-columns:1fr!important} .kpigrid{grid-template-columns:repeat(3,1fr)!important} .salesgrid{grid-template-columns:1fr!important} .lossgrid{grid-template-columns:1fr!important} .footgrid{grid-template-columns:1fr!important} }
+    @media (max-width:560px){ .kpigrid{grid-template-columns:repeat(2,1fr)!important} }
+  </style>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.state = {
+      gran:'month', feeView:'full', showCum:false,
+      oMonth:'All months', oStatus:'All', oSearch:'', oPage:1,
+      cSport:'All sports', cBand:'All prices', cMonth:'All months', cBucket:'all', cSearch:'',
+      cSort:'nas', cDir:'desc', cPage:1, expandedCard:null,
+      whatIf:0, modal:null, importOpen:false, importStatus:{},
+      ready: !!(typeof window!=='undefined' && window.CCSC_DATA)
+    };
+  }
+  componentDidMount(){
+    if(!(typeof window!=='undefined' && window.CCSC_DATA)){
+      this._iv = setInterval(()=>{ if(window.CCSC_DATA){ clearInterval(this._iv); this.setState({ready:true}); } }, 30);
+    }
+  }
+  componentWillUnmount(){ if(this._iv) clearInterval(this._iv); }
+
+  r(n){ return Math.round(n*100)/100; }
+  m0(n){ return (n<0?'−$':'$')+Math.abs(Math.round(n)).toLocaleString('en-US'); }
+  m2(n){ return (n<0?'−$':'$')+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  p1(n){ return (n<0?'−':'')+Math.abs(n).toFixed(1)+'%'; }
+  short(t,n){ n=n||40; t=(t||'').trim(); return t.length>n? t.slice(0,n-1)+'…' : t; }
+  sportColor(s){ return ({Baseball:'#1B5E43',Football:'#B4531F',Basketball:'#6E3A5A',Soccer:'#2C6E63','Non-Sport / Novelty':'#A9791F','Other / Multi-sport':'#7A7264'})[s] || '#7A7264'; }
+  sportBg(s){ return ({Baseball:'#E7F0EA',Football:'#F7E9DD',Basketball:'#F1E6EE',Soccer:'#E2EFEC','Non-Sport / Novelty':'#F5EBD6','Other / Multi-sport':'#EDE9E0'})[s] || '#EDE9E0'; }
+
+  aggregate(gran){
+    const M = window.CCSC_DATA.monthly;
+    let groups;
+    if(gran==='quarter') groups=[{label:'Q1',months:M.slice(0,3)},{label:'Q2',months:M.slice(3,6)}];
+    else if(gran==='h1') groups=[{label:'Total',months:M}];
+    else groups=M.map(m=>({label:m.month,months:[m]}));
+    const keys=['item_sales','ship_charged','orders','cards_net','per_sale_fees','listing_fees','store_sub','adjustment','postage','supplies','refunds','claim','net_proceeds','net_after_supplies','fvf_var','fvf_fixed','promo_offsite','promo_general','insertion','gallery','international','regulatory','ship_pl','refund_count','full_ledger_fees','item_scoped_fees'];
+    return groups.map(g=>{
+      const o={label:g.label};
+      keys.forEach(k=> o[k]=this.r(g.months.reduce((a,m)=>a+(m[k]||0),0)));
+      o.asp=o.orders? this.r(o.item_sales/o.orders):0;
+      o.aov=o.orders? this.r((o.item_sales+o.ship_charged)/o.orders):0;
+      const charges=o.per_sale_fees+o.listing_fees+o.store_sub+o.postage+o.supplies;
+      o.fee_load=o.item_sales? this.r(100*charges/o.item_sales):0;
+      return o;
+    });
+  }
+  line(vals,W,H,pl,pr,pt,pb){
+    pl=pl||6;pr=pr||6;pt=pt||8;pb=pb||8;
+    const max=Math.max.apply(null,vals),min=Math.min.apply(null,vals.concat([0]));
+    const iw=W-pl-pr, ih=H-pt-pb, n=vals.length;
+    const xf=i=> n>1? pl+iw*i/(n-1) : pl+iw/2;
+    const yf=v=> pt+ih*(1-(v-min)/((max-min)||1));
+    const dots=vals.map((v,i)=>({x:this.r(xf(i)),y:this.r(yf(v)),v}));
+    return {pts:dots.map(d=>d.x+','+d.y).join(' '), dots};
+  }
+
+  streamsDef(){ return [
+      {key:'fvf_var',label:'Final value fee — variable',color:'#1B5E43',scoped:true},
+      {key:'fvf_fixed',label:'Final value fee — fixed',color:'#2C6E63',scoped:true},
+      {key:'promo_offsite',label:'Promoted (offsite ads)',color:'#6E3A5A',scoped:true},
+      {key:'promo_general',label:'Promoted (on eBay)',color:'#9C5A86',scoped:true},
+      {key:'international',label:'International & regulatory',color:'#A9791F',scoped:true},
+      {key:'insertion',label:'Listing (insertion) fees',color:'#B4531F',scoped:false},
+      {key:'gallery',label:'Listing upgrades',color:'#D08A3E',scoped:false},
+      {key:'store_sub',label:'Store subscription',color:'#4A6B33',scoped:false},
+      {key:'postage',label:'Postage labels',color:'#7A7264',scoped:false},
+      {key:'supplies',label:'Shipping supplies (est.)',color:'#9C6B3F',scoped:false}
+    ]; }
+
+  // ---- pop-out modal content ----
+  buildModal(key){
+    const D=window.CCSC_DATA, ms=this.aggregate('month'), H=D.H1;
+    const cell=(v,align,opts)=>Object.assign({v,align:align||'left',mono:align==='right'||align==='center'?'tnum':'',weight:'500',color:'#221F1A'},opts||{});
+    const mk=(title,intro,cols,rows,note)=>({title,intro,cols,rows,note:note||null});
+    if(key==='sales'||key==='asp'){
+      return mk('Sales, month by month','Sale value (before shipping and tax), the number of cards, the typical price per card, and what you kept after fees, postage and supplies.',
+        [{label:'Month',align:'left'},{label:'Sales',align:'right'},{label:'Cards',align:'right'},{label:'Avg price',align:'right'},{label:'Shipping charged',align:'right'},{label:'Kept after eBay & shipping',align:'right'}],
+        ms.map(m=>({cells:[cell(m.label),cell(this.m2(m.item_sales),'right'),cell(m.cards_net,'right'),cell(this.m2(m.asp),'right'),cell(this.m2(m.ship_charged),'right'),cell(this.m2(m.net_after_supplies),'right',{weight:'700',color:m.net_after_supplies<0?'#B23A2E':'#1B5E43'})]}))
+          .concat([{bg:'#FBF3EC',cells:[cell('Total','left',{weight:'700'}),cell(this.m2(H.item_sales),'right',{weight:'700'}),cell(H.cards_net,'right',{weight:'700'}),cell(this.m2(H.asp),'right',{weight:'700'}),cell(this.m2(H.ship_charged),'right',{weight:'700'}),cell(this.m2(H.net_after_supplies),'right',{weight:'700',color:'#1B5E43'})]}])
+      );
+    }
+    if(key==='orders'){
+      return mk('Orders, month by month','How many orders, the average order value, and refunds each month.',
+        [{label:'Month',align:'left'},{label:'Orders',align:'right'},{label:'Avg order value',align:'right'},{label:'Refunds',align:'right'},{label:'Refund $',align:'right'}],
+        ms.map(m=>({cells:[cell(m.label),cell(m.orders,'right'),cell(this.m2(m.aov),'right'),cell(m.refund_count,'right',{color:m.refund_count?'#B23A2E':'#8A8272'}),cell(m.refund_count?this.m2(m.refunds):'—','right',{color:m.refund_count?'#B23A2E':'#8A8272'})]}))
+      );
+    }
+    if(key==='sport'){
+      const sp=Object.keys(D.sport).map(k=>Object.assign({name:k},D.sport[k])).sort((a,b)=>b.item_sales-a.item_sales);
+      return mk('Sales by sport (estimated)','Sport is guessed from the words in each card title — eBay does not report it. Treat these splits as a close guess.',
+        [{label:'Sport',align:'left'},{label:'Cards',align:'right'},{label:'Sales',align:'right'},{label:'Fees',align:'right'},{label:'Kept after eBay & shipping',align:'right'}],
+        sp.map(s=>({cells:[cell(s.name),cell(s.cards,'right'),cell(this.m2(s.item_sales),'right'),cell(this.m2(s.selling_costs),'right',{color:'#B23A2E'}),cell(this.m2(s.net_after_supplies),'right',{weight:'700',color:'#1B5E43'})]})),
+        'Sport is inferred from card titles, not an eBay field.');
+    }
+    if(key==='charges'){
+      const st=this.streamsDef();
+      const cols=[{label:'Month',align:'left'}].concat(st.map(s=>({label:s.label.replace('Final value fee — ','FVF ').replace(' (offsite ads)','·off').replace(' (on eBay)','·on'),align:'right'}))).concat([{label:'Total',align:'right'}]);
+      const rows=ms.map(m=>{ const cells=[cell(m.label)]; let tot=0; st.forEach(s=>{tot+=m[s.key]||0;cells.push(cell(this.m2(m[s.key]||0),'right',{color:(m[s.key]||0)>0?'#221F1A':'#B8AF9C'}));}); cells.push(cell(this.m2(tot),'right',{weight:'700'})); return {cells}; });
+      return mk('Every fee, month by month','All charges eBay applied, split into each stream. Numbers match the sales and transaction reports.',cols,rows,'FVF = final value fee (eBay\u2019s commission on each sale).');
+    }
+    if(key==='ship'){
+      const sa=D.shippingAnalysis;
+      return mk('Shipping, service by service','What you charged buyers versus the postage you paid, per mail service, averaged per order.',
+        [{label:'Service',align:'left'},{label:'Orders',align:'right'},{label:'You charge (avg)',align:'right'},{label:'Postage (avg)',align:'right'},{label:'Per order',align:'right'}],
+        sa.byService.map(s=>({cells:[cell(s.service),cell(s.orders,'right'),cell(this.m2(s.avgCharged),'right',{color:'#1B5E43'}),cell(this.m2(s.avgPostage),'right',{color:'#B23A2E'}),cell((s.avgMargin<0?'':'+')+this.m2(s.avgMargin),'right',{weight:'700',color:s.avgMargin<0?'#B23A2E':'#1B5E43'})]}))
+          .concat([{bg:'#FBF3EC',cells:[cell('All shipped','left',{weight:'700'}),cell(sa.labeledOrders,'right',{weight:'700'}),cell(this.m2(sa.totalCharged),'right',{weight:'700'}),cell(this.m2(sa.totalPostage),'right',{weight:'700',color:'#B23A2E'}),cell(this.m2(sa.net),'right',{weight:'700',color:'#B23A2E'})]}]),
+        'Envelope mail breaks even; tracked USPS packages lose about $1.16 each — that\u2019s the whole shipping loss.');
+    }
+    return null;
+  }
+
+  renderVals(){
+    const D = window.CCSC_DATA;
+    if(!this.state.ready || !D){
+      return { ready:false, seller:'Cream City Sports Cards LLC', handle:'creamcitysportscardsllc',
+        period:'Jan 1 – Jun 30, 2026', asOf:'Jun 30, 2026', nav:[], rest:[], months:['Jan','Feb','Mar','Apr','May','Jun'],
+        modal:null, importOpen:false };
+    }
+    const S=this.state, meta=D.meta;
+    const set=(o)=>this.setState(Object.assign({},o));
+    const series=this.aggregate(S.gran);
+    const monthlySeries=this.aggregate('month');
+    const H=D.H1;
+
+    // HERO
+    const mo=D.monthly, jun=mo[5], may=mo[4];
+    const mkDelta=(cur,prev,goodUp)=>{
+      if(prev===0||prev==null) return null;
+      const d=(cur-prev)/Math.abs(prev)*100;
+      const dir=d>0.05?'up':d<-0.05?'down':'flat';
+      const good = dir==='flat'?'flat':((dir==='up')===goodUp?'good':'bad');
+      const fg = good==='good'?'#1B5E43':good==='bad'?'#B23A2E':'#8A8272';
+      return {dir,fg,bg:good==='good'?'rgba(27,94,67,.22)':good==='bad'?'rgba(178,58,46,.2)':'rgba(138,130,114,.22)',
+        text:dir==='up'?'▲':dir==='down'?'▼':'▬', pct:this.p1(d)};
+    };
+    const north={ val:this.m0(H.net_after_supplies), sub:'first-half total', delta:mkDelta(jun.net_after_supplies,may.net_after_supplies,true) };
+    const rest=[
+      { label:'Item sales', val:this.m0(H.item_sales), sub:'before shipping & tax', tipT:'What you sold', tipD:'Total card value across 116 orders, not counting shipping or tax.', delta:mkDelta(jun.item_sales,may.item_sales,true) },
+      { label:'Cards sold', val:String(H.cards_net), sub:'after 4 refunds', tipT:'Cards that stuck', tipD:'116 cards sold, minus 4 that were refunded, leaves 112.', delta:mkDelta(jun.cards_net,may.cards_net,true) },
+      { label:'Average sale price', val:this.m2(H.asp), sub:'per card', tipT:'Typical price', tipD:'Sales value divided by cards sold. A few big cards pull this up.', delta:mkDelta(jun.asp,may.asp,true) },
+      { label:'Orders', val:String(H.orders), sub:'total checkouts', tipT:'Number of sales', tipD:'One order = one buyer checkout. April had a clear spike.', delta:mkDelta(jun.orders,may.orders,true) },
+      { label:'Fee load', val:this.p1(H.fee_load), sub:'of sales go to costs', tipT:'Share eaten by costs', tipD:'All eBay charges plus supplies as a percent of sales value.', delta:mkDelta(jun.fee_load,may.fee_load,false) }
+    ];
+
+    // CONTROLS
+    const seg=(active,label,onClick)=>({label,onClick,bg:active?'#1B5E43':'#FBF9F4',fg:active?'#fff':'#524B3F',bd:active?'#1B5E43':'#E0D8C7'});
+    const granCtrl=[ seg(S.gran==='month','Month',()=>set({gran:'month'})), seg(S.gran==='quarter','Quarter',()=>set({gran:'quarter'})), seg(S.gran==='h1','Half',()=>set({gran:'h1'})) ];
+    const granLabel = S.gran==='quarter'?'quarter':S.gran==='h1'?'half-year':'month';
+    const feeCtrl=[ seg(S.feeView==='full','Everything',()=>set({feeView:'full'})), seg(S.feeView==='scoped','Sales-report fees',()=>set({feeView:'scoped'})) ];
+
+    // SALES
+    const smax=Math.max.apply(null,series.map(x=>x.item_sales));
+    let cum=0; const cumMax=series.reduce((a,x)=>a+x.item_sales,0); const cumDots=[];
+    const salesBars=series.map((x,i)=>{
+      cum+=x.item_sales; const sel=S.cMonth===x.label; const n=series.length; const cx=n>1?100*i/(n-1):50;
+      cumDots.push({x:this.r(cx),y:this.r(100-100*cum/(cumMax||1))});
+      return { label:x.label, valFmt:this.m0(x.item_sales), h:this.r(90*x.item_sales/(smax||1)+2),
+        color: sel?'#B4531F':(i%2?'#2C6E63':'#1B5E43'), shadow: sel?'0 0 0 3px rgba(180,83,31,.22)':'none',
+        lblColor: sel?'#8A4A1E':'#6B6459', onClick:()=>set({cMonth:sel?'All months':x.label,cPage:1}) };
+    });
+    const cumPts=cumDots.map(d=>d.x+','+d.y).join(' ');
+    const salesAria='Sales by '+granLabel+': '+series.map(x=>x.label+' '+this.m0(x.item_sales)).join(', ');
+    const aspL=this.line(monthlySeries.map(x=>x.asp),320,110,14,14,12,14);
+    const aspDots=aspL.dots.map((d,i)=>({x:d.x,y:d.y,vFmt:this.m2(d.v),label:monthlySeries[i].label,units:monthlySeries[i].orders}));
+    const sportEntries=Object.keys(D.sport).map(k=>Object.assign({name:k},D.sport[k])).sort((a,b)=>b.item_sales-a.item_sales);
+    const spMax=Math.max.apply(null,sportEntries.map(s=>s.item_sales));
+    const sportRows=sportEntries.map(s=>({name:s.name,cards:s.cards,itemFmt:this.m0(s.item_sales),w:this.r(100*s.item_sales/(spMax||1)),color:this.sportColor(s.name)}));
+
+    // ORDERS
+    const omax=Math.max.apply(null,series.map(x=>x.orders));
+    const orderBars=series.map((x)=>({label:x.label,val:x.orders,h:this.r(88*x.orders/(omax||1)+3),
+      isSpike:S.gran==='month'&&x.label==='Apr', color:(S.gran==='month'&&x.label==='Apr')?'#B4531F':'#2C6E63'}));
+    const ordersAria='Orders by '+granLabel+': '+series.map(x=>x.label+' '+x.orders).join(', ');
+    const aovL=this.line(monthlySeries.map(x=>x.aov),320,60,12,12,8,10);
+    const aovDots=aovL.dots.map((d,i)=>({x:d.x,y:d.y,vFmt:this.m0(d.v),label:monthlySeries[i].label}));
+    const refundRows=monthlySeries.map(x=>{const has=x.refund_count>0;return{month:x.label,count:x.refund_count,amtFmt:has?this.m0(x.refunds):'—',fg:has?'#B23A2E':'#C7BCA6',bg:has?'#FBECE9':'#F4F0E6',bd:has?'#E7C4BC':'#EFE9DB'};});
+    const refundTotalFmt=this.m0(H.refunds);
+    let ords=D.orders.slice();
+    if(S.oMonth!=='All months') ords=ords.filter(o=>o.month===S.oMonth);
+    if(S.oStatus!=='All') ords=ords.filter(o=>o.status===S.oStatus);
+    if(S.oSearch){const q=S.oSearch.toLowerCase();ords=ords.filter(o=>(o.title||'').toLowerCase().includes(q));}
+    ords.sort((a,b)=>b.rec-a.rec);
+    const oPageSize=12,oPages=Math.max(1,Math.ceil(ords.length/oPageSize)),oPage=Math.min(S.oPage,oPages);
+    const ordersPage=ords.slice((oPage-1)*oPageSize,oPage*oPageSize).map(o=>({date:o.date,city:o.city||'—',state:o.state||'',title:this.short(o.title,54),soldFmt:this.m2(o.sold),shipFmt:o.ship>0?this.m2(o.ship):'free',status:o.status,stFg:o.status==='Refunded'?'#B23A2E':'#1B5E43',stBg:o.status==='Refunded'?'#FBECE9':'#E7F0EA'}));
+    const monthOptsAll=['All months'].concat(D.months);
+    const statusOpts=['All','Completed','Refunded'];
+
+    // SHIPPING
+    const sa=D.shippingAnalysis;
+    const svcRows=sa.byService.map(s=>{
+      const lose=s.avgMargin<-0.02;
+      return { service:s.service, orders:s.orders, avgChargedFmt:this.m2(s.avgCharged), avgPostageFmt:this.m2(s.avgPostage),
+        avgMarginFmt:(s.avgMargin<0?'':'+')+this.m2(s.avgMargin), marginFg:s.avgMargin<-0.02?'#B23A2E':s.avgMargin>0.02?'#1B5E43':'#8A5A12',
+        verdict: lose?'Loses money':'Breaks even', tagFg:lose?'#B23A2E':'#1B5E43', tagBg:lose?'#FBECE9':'#E7F0EA', tagBd:lose?'#E7C4BC':'#BEDBCB',
+        bd:lose?'#E7C9B0':'#E0D8C7', bg:lose?'#FBF3EC':'#FBF9F4' };
+    });
+    const distTot=sa.distribution.lose+sa.distribution.even+sa.distribution.win;
+    const shipDist=[
+      {label:'Lost money',count:sa.distribution.lose,color:'#B23A2E',fg:'#B23A2E'},
+      {label:'Broke even',count:sa.distribution.even,color:'#7A7264',fg:'#524B3F'},
+      {label:'Made money',count:sa.distribution.win,color:'#1B5E43',fg:'#1B5E43'}
+    ].map(d=>Object.assign(d,{w:this.r(100*d.count/(distTot||1))}));
+    const shipNet=sa.net, chargedCards=sa.labeledOrders;
+    const whatIfNet=this.r(shipNet+S.whatIf*chargedCards);
+    const breakEven=this.r((sa.totalPostage-sa.totalCharged)/chargedCards);
+
+    // TRAFFIC
+    const fp=D.funnel.primary;
+    const funTips=[{t:'Listing views per day',d:'How often your listings show up in search each day, per listing.'},{t:'Click-through rate',d:'Of the buyers who see your listing, the share who click it.'},{t:'Sales conversion',d:'Of the buyers who view your listing, the share who buy. eBay: sales divided by views.'}];
+    const funnelStages=fp.stages.map((st,i)=>{
+      const hasTop=st.top10!=null; const scaleMax=hasTop?Math.max(st.you,st.top10)*1.12:st.you*1.15;
+      const youFmt=st.unit==='%'?this.p1(st.you):(st.you+st.unit);
+      const topFmt=hasTop?(st.unit==='%'?this.p1(st.top10):(st.top10+st.unit)):'';
+      return { label:st.label.replace('Click-through rate','Click-through').replace('Sales conversion','Sales conversion'), youFmt, topFmt, hasTop,
+        youW:this.r(100*st.you/scaleMax), topW:this.r(100*(st.top10||0)/scaleMax),
+        gap:hasTop?('You\u2019re at '+this.r(100*st.you/st.top10)+'% of the top-10% mark'):'',
+        tipT:funTips[i].t, tipD:funTips[i].d };
+    });
+    const lqRows=D.listing_quality.map(c=>{
+      const pct=c.percentile; let fg,bg;
+      if(pct==null){fg='#8A8272';bg='#EDE9E0';} else if(pct<=1){fg='#1B5E43';bg='#E7F0EA';} else if(pct<=3){fg='#8A5A12';bg='#F5E6C8';} else {fg='#B23A2E';bg='#FBECE9';}
+      return { category:c.category, condition:c.condition, rankFmt:c.rank.toLocaleString('en-US'), totalFmt:c.total.toLocaleString('en-US'),
+        pctFmt:pct==null?'—':('top '+pct.toFixed(1)+'%'), ragFg:fg, ragBg:bg, improve:c.improve, impFg:c.improve>0?'#B4531F':'#C7BCA6',
+        rec: c.recs.length? c.recs[0] : 'Performing well — nothing flagged' };
+    });
+    const ghostGrid=[{top:0},{top:25},{top:50},{top:75}];
+    const ghostBars=[38,52,30,64,44,58].map(h=>({h}));
+
+    // CHARGES
+    const streams=this.streamsDef();
+    const activeStreams=S.feeView==='scoped'?streams.filter(s=>s.scoped):streams;
+    const stackTotals=series.map(x=>activeStreams.reduce((a,s)=>a+(x[s.key]||0),0));
+    const stackMax=Math.max.apply(null,stackTotals);
+    const stackedBars=series.map((x,i)=>{const total=stackTotals[i];
+      const segs=activeStreams.map(s=>({color:s.color,h:this.r(100*(x[s.key]||0)/(total||1)),title:s.label+' '+this.m2(x[s.key]||0)})).filter(g=>g.h>0.05);
+      return {label:x.label,totalFmt:this.m0(total),h:this.r(90*total/(stackMax||1)+2),segs};});
+    const feeLegend=activeStreams.map(s=>({label:s.label,color:s.color,valFmt:this.m0(H[s.key]||0)}));
+    const chargesTotal=activeStreams.reduce((a,s)=>a+(H[s.key]||0),0);
+    const chargesAria='Fees by '+granLabel+' ('+(S.feeView==='scoped'?'sales-report fees':'everything')+'): total '+this.m0(chargesTotal);
+    const feeViewNote=S.feeView==='scoped'
+      ? 'Showing only the fees that appear per sale on the sales report — final value fees, promoted-ad fees, international and regulatory. Listing fees, the store subscription, postage and supplies are hidden. Switch to "Everything" for the full cost picture.'
+      : 'Showing every charge eBay applied: fees on each sale, promoted-ad fees, listing fees, the monthly store subscription, postage labels and your shipping supplies. This equals the total money eBay took, not just the sales-report fees.';
+    const flmax=Math.max.apply(null,monthlySeries.map(x=>x.fee_load));
+    const feeLoadBars=monthlySeries.map(x=>({label:x.label,valFmt:this.r(x.fee_load)+'%',h:this.r(90*x.fee_load/(flmax||1)+3),
+      color:x.fee_load>60?'#B23A2E':x.fee_load>45?'#B4531F':'#2C6E63', fg:x.fee_load>60?'#B23A2E':x.fee_load>45?'#8A4A1E':'#2C6E63'}));
+
+    // WATERFALL
+    const overheadNet=this.r(H.store_sub-H.adjustment);
+    const steps=[
+      {label:'Item sales', sub:'116 orders', val:H.item_sales, kind:'start'},
+      {label:'Shipping charged to buyers', sub:'most cards carried a charge', val:H.ship_charged, kind:'add'},
+      {label:'eBay fees on each sale', sub:'final value + promoted ads', val:-H.per_sale_fees, kind:'sub'},
+      {label:'Listing fees', sub:'insertion + upgrades', val:-H.listing_fees, kind:'sub'},
+      {label:'Store subscription', sub:'net of a credit', val:-overheadNet, kind:'sub'},
+      {label:'Postage you paid', sub:'shipping labels', val:-H.postage, kind:'sub'},
+      {label:'Refunds', sub:'4 refunds / returns', val:H.refunds, kind:'sub'},
+      {label:'Payment dispute', sub:'1 chargeback in March', val:H.claim, kind:'sub'},
+      {label:'Net proceeds', sub:'what eBay paid out', kind:'subtotal'},
+      {label:'Shipping supplies', sub:'$0.6462 × 112 cards (est.)', val:-H.supplies, kind:'sub'},
+      {label:'Kept after eBay & shipping', sub:'before card cost', kind:'total'},
+      {label:'Card cost (what you paid)', sub:'not in the reports yet', kind:'pending'},
+      {label:'Final profit', sub:'waiting on card cost', kind:'pending'}
+    ];
+    const wfScale=this.r(H.item_sales+H.ship_charged);
+    let run=0; const wfRows=steps.map(s=>{
+      let barLeft=0,barW=0,barColor='#C7BCA6',barOpacity=1,disp='',valColor='#221F1A',labelColor='#3A362E',weight='600',valSize='13px',rowBg='transparent',border='#EFE9DB';
+      if(s.kind==='start'){run=s.val;barW=100*run/wfScale;barColor='#1B5E43';disp=this.m2(run);valColor='#1B5E43';weight='700';}
+      else if(s.kind==='add'||s.kind==='sub'){const prev=run;run=this.r(run+s.val);barLeft=100*Math.min(prev,run)/wfScale;barW=100*Math.abs(s.val)/wfScale;barColor=s.val>=0?'#1B5E43':'#B23A2E';disp=(s.val<0?'− ':'+ ')+this.m2(Math.abs(s.val));valColor=s.val>=0?'#1B5E43':'#B23A2E';}
+      else if(s.kind==='subtotal'){barW=100*run/wfScale;barColor='#164A35';barOpacity=.85;disp=this.m2(run);valColor='#164A35';weight='700';rowBg='#F4F0E6';valSize='14px';}
+      else if(s.kind==='total'){barW=100*run/wfScale;barColor='#1B5E43';disp=this.m2(run);valColor='#1B5E43';weight='800';rowBg='#E7F0EA';valSize='15px';border='#CBE2D4';labelColor='#164A35';}
+      else {barW=0;barOpacity=.4;disp='pending';valColor='#8A8272';labelColor='#8A8272';}
+      return {label:s.label,sub:s.sub||null,disp,barLeft:this.r(barLeft),barW:this.r(Math.max(barW,0)),barColor,barOpacity,valColor,labelColor,weight,valSize,rowBg,border};
+    });
+
+    // CARDS
+    let cards=D.cards.slice();
+    if(S.cSport!=='All sports') cards=cards.filter(c=>c.sport===S.cSport);
+    if(S.cBand!=='All prices') cards=cards.filter(c=>c.band===S.cBand);
+    if(S.cMonth!=='All months') cards=cards.filter(c=>c.month===S.cMonth);
+    if(S.cBucket==='profit') cards=cards.filter(c=>c.nas>0);
+    else if(S.cBucket!=='all') cards=cards.filter(c=>c.bucket===S.cBucket);
+    if(S.cSearch){const q=S.cSearch.toLowerCase();cards=cards.filter(c=>c.title.toLowerCase().includes(q));}
+    const dir=S.cDir==='asc'?1:-1;
+    cards.sort((a,b)=>{let va=a[S.cSort],vb=b[S.cSort];if(typeof va==='string')return String(va).localeCompare(String(vb))*dir;return((va||0)-(vb||0))*dir;});
+    const cPageSize=12,cPages=Math.max(1,Math.ceil(cards.length/cPageSize)),cPage=Math.min(S.cPage,cPages);
+    const tagFor=(c)=>{ if(c.bucket==='refund')return{tag:'Refund',fg:'#B23A2E',bg:'#FBECE9'}; if(c.bucket==='below')return{tag:'Loss',fg:'#B23A2E',bg:'#FBECE9'}; if(c.bucket==='supplies_tipped')return{tag:'Supplies −',fg:'#8A4A1E',bg:'#F5E6C8'}; return{tag:'Profit',fg:'#1B5E43',bg:'#E7F0EA'}; };
+    const lrow=(label,val,opts)=>Object.assign({label,val,weight:'500',labelC:'#524B3F',valC:'#221F1A',bd:'#EFE9DB'},opts||{});
+    const cardsPage=cards.slice((cPage-1)*cPageSize,cPage*cPageSize).map(c=>{
+      const t=tagFor(c); const exp=S.expandedCard===c.item_id;
+      const otherFees=this.r(c.fees-c.fvf);
+      const ledger=[
+        lrow('Item sale', this.m2(c.item_sales)),
+        lrow('Shipping charged', c.ship>0?('+ '+this.m2(c.ship)):'free', {valC:'#1B5E43'}),
+        lrow('Final value fee', '− '+this.m2(c.fvf), {valC:'#B23A2E'}),
+        lrow('Promoted + postage + other', '− '+this.m2(otherFees), {valC:'#B23A2E'}),
+        lrow('Net proceeds', this.m2(c.net), {weight:'700',labelC:'#221F1A',bd:'#DDD3C0'}),
+        lrow('Shipping supplies (est.)', '− '+this.m2(c.supplies), {valC:'#B23A2E'}),
+        lrow('Kept after eBay & shipping', this.m2(c.nas), {weight:'800',labelC:'#164A35',valC:c.nas<0?'#B23A2E':'#1B5E43',bd:'transparent'})
+      ];
+      return { item_id:c.item_id, title:this.short(c.title,46), fullTitle:c.title, sport:c.sport, sportFg:this.sportColor(c.sport), sportBg:this.sportBg(c.sport),
+        month:c.month||'—', salesFmt:this.m2(c.item_sales), feesFmt:this.m2(c.fees), suppliesFmt:this.m2(c.supplies),
+        nasFmt:this.m2(c.nas), nasFg:c.nas<0?'#B23A2E':c.nas<1?'#8A4A1E':'#221F1A', tag:t.tag, tagFg:t.fg, tagBg:t.bg,
+        expanded:exp, caret:exp?'▾':'▸', toggle:()=>set({expandedCard:exp?null:c.item_id}),
+        why:c.why, dDate:c.date||'—', dLoc:(c.city?c.city+', ':'')+(c.state||''), dChannel:c.channel, dService:c.service||'—', ledger };
+    });
+    const col=(key,label,align)=>({label,align:align||'left',color:S.cSort===key?'#1B5E43':'#8A8272',arrow:S.cSort===key?(S.cDir==='asc'?' ▲':' ▼'):'',onClick:()=>set({cSort:key,cDir:S.cSort===key&&S.cDir==='desc'?'asc':'desc',cPage:1})});
+    const cardCols=[col('title','Card','left'),col('sport','Sport','left'),col('month','Mo','center'),col('item_sales','Sale','right'),col('fees','Fees','right'),col('supplies','Supplies','right'),col('nas','Kept','right'),col('bucket','Result','center')];
+    const sportOpts=['All sports'].concat(sportEntries.map(s=>s.name));
+    const bandOpts=['All prices','$100+','$50–100','$20–50','$5–20','<$5'];
+    const bucketOpts=[{v:'all',l:'All results'},{v:'profit',l:'Made money'},{v:'refund',l:'Refunds'},{v:'below',l:'Sold at a loss'},{v:'supplies_tipped',l:'Supplies-tipped'}];
+    const bmeta={refund:{title:'Refunded — postage eaten',accent:'#B23A2E',bd:'#E7C4BC',desc:'Sale reversed; you still paid to ship it out and any ad fees.'},below:{title:'Sold at a loss',accent:'#B23A2E',bd:'#E7C4BC',desc:'Fees plus shipping came to more than the sale itself.'},supplies_tipped:{title:'Tipped by supplies',accent:'#B4531F',bd:'#E7C9B0',desc:'Would have cleared about $0, but the 65¢ supplies cost pushed it negative.'}};
+    const lossCards=['refund','below','supplies_tipped'].map(k=>{const items=D.lossBuckets[k]||[];const total=items.reduce((a,c)=>a+c.nas,0);return{title:bmeta[k].title,accent:bmeta[k].accent,bd:bmeta[k].bd,desc:bmeta[k].desc,count:items.length,totalFmt:this.m2(total),items:items.slice(0,4).map(c=>({short:this.short(c.title,34),nasFmt:this.m2(c.nas)}))};});
+    const topSorted=D.cards.slice().sort((a,b)=>b.nas-a.nas);
+    const topPerf=topSorted.slice(0,5).map(c=>({short:this.short(c.title,38),sportColor:this.sportColor(c.sport),nasFmt:this.m2(c.nas),why:c.why}));
+    const botPerf=topSorted.slice(-5).reverse().map(c=>({short:this.short(c.title,38),sportColor:this.sportColor(c.sport),nasFmt:this.m2(c.nas),nasFg:c.nas<0?'#B23A2E':'#8A4A1E',why:c.why}));
+
+    const methodology=[
+      'Sales, fees, postage and refunds are added straight from your eBay transaction ledger by date. Monthly figures reconcile exactly to the totals and the waterfall.',
+      'Sport is ESTIMATED from card titles — eBay does not report a sport, so treat the splits as a close guess.',
+      'Shipping supplies = $0.6462 per card sold, from your itemized supplies sheet (sleeve, top loader, team bag, mailer, 2 Ding Defenders, label, tape). It is an estimate.',
+      'Card cost (what you paid for each card) is NOT in these reports. "Kept after eBay & shipping" is therefore not final profit — the waterfall\u2019s last two lines wait on that.',
+      'Traffic and buyer-funnel figures are a 31-day snapshot (as of June 28, 2026) from the Listing Quality report — not a monthly series. Monthly traffic needs eBay\u2019s Traffic Report.',
+      'Net proceeds ($1,686) equals every real ledger line added up, including the March payment dispute (−$128.93) and the 4 refunds (−$24.48).'
+    ];
+    const nav=[{label:'Overview',href:'#overview'},{label:'Sales',href:'#sales'},{label:'Orders',href:'#orders'},{label:'Shipping',href:'#shipping'},{label:'Traffic',href:'#traffic'},{label:'What eBay charges',href:'#charges'},{label:'Waterfall',href:'#waterfall'},{label:'Every card',href:'#cards'}];
+
+    // MODALS
+    const modal=S.modal?this.buildModal(S.modal):null;
+
+    // IMPORT
+    const slotDefs=[
+      {key:'transaction',title:'Transaction report',hint:'CSV — every fee, order & payout',icon:'🧾'},
+      {key:'orders',title:'Orders report',hint:'CSV — buyer & shipping detail',icon:'📦'},
+      {key:'sales',title:'Sales report',hint:'CSV — item-level sales',icon:'💳'},
+      {key:'listing',title:'Listing Quality report',hint:'XLSX — traffic & benchmarks',icon:'📊'}
+    ];
+    const importSlots=slotDefs.map(s=>{
+      const st=S.importStatus[s.key];
+      return { title:s.title, hint:s.hint, icon:st?'✓':s.icon,
+        bd:st?'#1B5E43':'#C7BCA6', titleC:st?'#1B5E43':'#221F1A', statusC:st?'#1B5E43':'#8A8272',
+        status: st? (st.name+' · '+st.rows+' rows read') : 'Drop or choose a file',
+        onFile:(e)=>{ const f=e.target.files&&e.target.files[0]; if(!f)return; const rd=new FileReader();
+          rd.onload=()=>{ const txt=String(rd.result||''); const rows=Math.max(0,(txt.split('\n').filter(l=>l.trim()).length)-1);
+            const ns=Object.assign({},this.state.importStatus); ns[s.key]={name:f.name.length>26?f.name.slice(0,24)+'…':f.name, rows:rows.toLocaleString('en-US')}; this.setState({importStatus:ns}); };
+          rd.readAsText(f); } };
+    });
+    const apiRoadmap=[
+      {api:'eBay Finances API',feeds:'Fees, payouts, refunds and the whole waterfall — automatically.',color:'#1B5E43',status:'Maps to Charges & Waterfall'},
+      {api:'eBay Analytics / Traffic API',feeds:'Monthly impressions, views and click-through — fills the dark traffic panel.',color:'#A9791F',status:'Maps to Traffic'},
+      {api:'eBay Fulfillment (Orders) API',feeds:'Orders, buyers, shipping labels and postage in real time.',color:'#2C6E63',status:'Maps to Orders & Shipping'},
+      {api:'eBay Inventory API',feeds:'Active listings — unlocks a true sell-through rate.',color:'#6E3A5A',status:'Adds sell-through'}
+    ];
+
+    return {
+      ready:true, seller:meta.seller, handle:meta.handle, period:meta.period, asOf:'Jun 30, 2026', months:D.months, nav,
+      north, rest, granCtrl, granLabel, feeCtrl,
+      salesBars, cumPts, showCum:S.showCum, salesAria, toggleCum:()=>set({showCum:!S.showCum}),
+      cumBg:S.showCum?'#B4531F':'#FBF9F4', cumFg:S.showCum?'#fff':'#8A4A1E', cumBd:S.showCum?'#B4531F':'#E7C9B0',
+      aspPts:aspL.pts, aspDots, sportRows,
+      orderBars, ordersAria, aovPts:aovL.pts, aovDots, refundRows, refundTotalFmt,
+      ordersPage, monthOptsAll, statusOpts, oSearch:S.oSearch, oMonth:S.oMonth, oStatus:S.oStatus,
+      onOSearch:(e)=>set({oSearch:e.target.value,oPage:1}), onOMonth:(e)=>set({oMonth:e.target.value,oPage:1}), onOStatus:(e)=>set({oStatus:e.target.value,oPage:1}),
+      oPrev:()=>set({oPage:Math.max(1,oPage-1)}), oNext:()=>set({oPage:Math.min(oPages,oPage+1)}), oPageLabel:oPage+' / '+oPages, ordersCountLabel:ords.length+' orders',
+      shipChargedFmt:this.m2(sa.totalCharged), shipPostageFmt:this.m2(sa.totalPostage), shipNetFmt:this.m2(sa.net),
+      avgCostPerCardFmt:this.m2(sa.avgCostPerCard), svcRows, shipDist, shipLabeled:sa.labeledOrders,
+      whatIf:S.whatIf, whatIfFmt:this.m2(S.whatIf), onWhatIf:(e)=>set({whatIf:parseFloat(e.target.value)}),
+      whatIfNetFmt:this.m2(whatIfNet), whatIfNetFg:whatIfNet>=0?'#1B5E43':'#B23A2E', breakEvenFmt:this.m2(Math.abs(breakEven)),
+      funnelCat:fp.category, funnelStages, lqRows, ghostGrid, ghostBars,
+      stackedBars, feeLegend, chargesTotalFmt:this.m0(chargesTotal), chargesAria, feeViewNote, feeLoadBars, feeLoadH1:this.r(H.fee_load)+'%',
+      wfRows,
+      lossCards, topPerf, botPerf, cardsPage, cardCols, sportOpts, bandOpts, bucketOpts,
+      cSearch:S.cSearch, cSport:S.cSport, cBand:S.cBand, cMonth:S.cMonth, cBucket:S.cBucket,
+      onCSearch:(e)=>set({cSearch:e.target.value,cPage:1}), onCSport:(e)=>set({cSport:e.target.value,cPage:1}), onCBand:(e)=>set({cBand:e.target.value,cPage:1}),
+      onCMonth:(e)=>set({cMonth:e.target.value,cPage:1}), onCBucket:(e)=>set({cBucket:e.target.value,cPage:1}),
+      clearFilters:()=>set({cSport:'All sports',cBand:'All prices',cMonth:'All months',cBucket:'all',cSearch:'',cPage:1}),
+      cPrev:()=>set({cPage:Math.max(1,cPage-1)}), cNext:()=>set({cPage:Math.min(cPages,cPage+1)}), cPageLabel:cPage+' / '+cPages, cardsCountLabel:cards.length+' cards',
+      methodology,
+      modal, closeModal:()=>set({modal:null}), stop:(e)=>{e.stopPropagation();},
+      openSales:()=>set({modal:'sales'}), openAsp:()=>set({modal:'sales'}), openSport:()=>set({modal:'sport'}), openOrders:()=>set({modal:'orders'}), openCharges:()=>set({modal:'charges'}), openShip:()=>set({modal:'ship'}),
+      importOpen:S.importOpen, openImport:()=>set({importOpen:true}), closeImport:()=>set({importOpen:false}), importSlots, apiRoadmap
+    };
+  }
+}
+</script>
+</body>
+</html>
