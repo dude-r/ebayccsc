@@ -35,10 +35,21 @@ figure updates live. Drop in real per-card costs later and it becomes exact.
 
 ```bash
 npm install
-npm run dev      # dev server with HMR
-npm run build    # production build → dist/
-npm run preview  # serve the production build
+npm run dev        # dev server with HMR
+npm run build      # production build → dist/
+npm run preview    # serve the production build
+npm test           # reconciliation + privacy tests (Vitest)
+npm run build:data # regenerate src/data/ccsc-data.js from design/project/
 ```
+
+## Data & privacy
+
+`src/data/ccsc-data.js` is **generated** by `scripts/build-data.mjs` from the
+canonical dataset in `design/project/`. The build step scrubs buyer PII —
+it drops every `city`/`state` field and the unused buyer `orders[]` table, and
+masks eBay order ids to their last 4 digits — so no customer data ships in this
+public repo. `npm test` enforces both the ledger reconciliation invariants and
+the no-PII guarantee, and CI runs it on every push and PR.
 
 ## Structure
 
