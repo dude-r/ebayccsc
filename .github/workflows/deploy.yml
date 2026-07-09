@@ -37,12 +37,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      # Enables GitHub Pages on first run (enablement: true) so no manual
-      # repo-settings toggle is needed.
       - name: Configure Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3

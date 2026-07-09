@@ -1,5 +1,9 @@
 # Cream City Sports Cards — H1 2026 Breakdown
 
+[![Deploy to GitHub Pages](https://github.com/dude-r/ebayccsc/actions/workflows/deploy.yml/badge.svg)](https://github.com/dude-r/ebayccsc/actions/workflows/deploy.yml)
+
+**▶ Live site: https://dude-r.github.io/ebayccsc/** &nbsp;·&nbsp; [Story summary](https://dude-r.github.io/ebayccsc/#/summary)
+
 A React + Vite implementation of the **CCSC H1 2026 Full Breakdown** dashboard
 and its companion **Story** summary, built from the Claude Design handoff
 prototypes (kept for reference under `design/`).
