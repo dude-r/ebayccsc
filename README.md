@@ -1,25 +1,67 @@
-# CODING AGENTS: READ THIS FIRST
+# Cream City Sports Cards — H1 2026 Breakdown
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+A React + Vite implementation of the **CCSC H1 2026 Full Breakdown** dashboard
+and its companion **Story** summary, built from the Claude Design handoff
+prototypes (kept for reference under `design/`).
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Every figure is computed from the pre-reconciled H1 2026 dataset
+(`src/data/ccsc-data.js`), which was derived from Cream City Sports Cards'
+eBay transaction ledger, orders report, listing-quality report, and Jun 26 YTD
+traffic report. No backend, no invented numbers.
 
-## What you should do — IMPORTANT
+## Pages
 
-**Read the chat transcripts first.** There are 2 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+| Route       | Page             | What it shows |
+| ----------- | ---------------- | ------------- |
+| `/`         | Full Breakdown   | Month-by-month ledger, Q1-vs-Q2, all 112 cards (search / filter / sort) with a per-card eBay-style order-detail modal, and the traffic story. |
+| `/#/summary`| Story            | Narrative "how the first half went" summary with the bottom line, where every dollar went, the January spike, top cards, fixed-cost drag, the visibility gap, and three moves for H2. |
 
-**Read `project/CCSC H1 2026 Full Breakdown.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+The two pages cross-link (uses `HashRouter`, so deep links work on any static
+host with no server config).
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## The cost model
 
-## About the design files
+eBay's reports never record what you *paid* to acquire each card, so **profit
+is modeled**, not measured. The **Cost model** control on the Full Breakdown
+page lets you choose the assumption — Net after fees (hard numbers only),
+Flat $/card, % of sale price, or By price band — and every "modeled profit"
+figure updates live. Drop in real per-card costs later and it becomes exact.
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+## Develop
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+```bash
+npm install
+npm run dev      # dev server with HMR
+npm run build    # production build → dist/
+npm run preview  # serve the production build
+```
 
-## Bundle contents
+## Structure
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `eBay report analysis setup` project files (HTML prototypes, assets, components)
+```
+src/
+  main.jsx                    # router + entry
+  styles.css                  # global palette, fonts, hover/focus treatments
+  data/ccsc-data.js           # reconciled dataset (generated; do not hand-edit)
+  lib/
+    format.js                 # usd / usd2 / signed currency helpers
+    costModel.js              # acquisition-cost model + labels
+  components/
+    SectionHeader.jsx         # numbered section header
+    CostModelControl.jsx      # on-page cost-model picker (replaces prototype "Tweaks")
+    CardDetailModal.jsx       # per-card eBay-style order breakdown
+  pages/
+    FullBreakdown.jsx         # the full dashboard
+    Story.jsx                 # the narrative summary
+
+design/                       # original Claude Design handoff (reference only)
+  README.md                   # handoff notes
+  chats/                      # design conversation transcripts
+  project/                    # the .dc.html prototypes, source reports, raw data
+```
+
+## Typography
+
+Uses Fira Sans (text) and Fira Code (all numbers, tabular figures) from Google
+Fonts, matching the design. Falls back to `system-ui` if the font host is
+unreachable.

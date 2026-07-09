@@ -1,0 +1,83 @@
+/* ---------------------------------------------------------------------------
+   Global styles for the CCSC H1 2026 report.
+   Warm "ledger" palette: paper background, evergreen + rust accents.
+   Ported from the Design Components prototype (shared across both pages).
+--------------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #e9e3d6;
+  color: #221f1a;
+  font-family: 'Fira Sans', system-ui, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular-figure treatment for ALL numbers so columns line up. */
+.tnum {
+  font-family: 'Fira Code', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+a {
+  color: #1b5e43;
+}
+a:hover {
+  color: #164a35;
+}
+
+::selection {
+  background: #1b5e43;
+  color: #fff;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+*:focus-visible {
+  outline: 2.5px solid #1b5e43;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* KPI cards / tiles lift on hover. */
+.lift {
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px -14px rgba(34, 31, 26, 0.4);
+  border-color: #c7bca6;
+}
+
+/* Table rows highlight on hover. */
+.rowh:hover {
+  background: #f1ebdd;
+}
+
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c7bca6;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #e9e3d6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
