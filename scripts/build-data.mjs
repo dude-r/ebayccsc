@@ -15,13 +15,25 @@
 // Everything else (financials, titles, sport, dates, channel) is preserved
 // verbatim, so every displayed figure still reconciles to the ledger.
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
-const SRC = resolve(__dirname, '../design/project/ccsc-data.js')
+// The unscrubbed source contains buyer PII, so it is NOT committed. Keep your
+// raw eBay-derived dataset (the `window.CCSC_DATA = {…}` file) here locally:
+const SRC = resolve(__dirname, '../raw/ccsc-data-source.js')
 const OUT = resolve(__dirname, '../src/data/ccsc-data.js')
+
+if (!existsSync(SRC)) {
+  console.error(
+    `Missing raw source: ${SRC}\n\n` +
+      `The unscrubbed dataset carries buyer PII and is intentionally kept out of\n` +
+      `this repo (see raw/ in .gitignore). Drop your raw CCSC_DATA file there as\n` +
+      `raw/ccsc-data-source.js, then re-run: npm run build:data`
+  )
+  process.exit(1)
+}
 
 // The source file is `window.CCSC_DATA = {…};` — extract the JSON literal.
 const raw = readFileSync(SRC, 'utf8')

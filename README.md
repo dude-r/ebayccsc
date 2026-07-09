@@ -72,7 +72,9 @@ src/
 design/                       # original Claude Design handoff (reference only)
   README.md                   # handoff notes
   chats/                      # design conversation transcripts
-  project/                    # the .dc.html prototypes, source reports, raw data
+  project/                    # the .dc.html prototypes + runtime (no raw data —
+                              # the source eBay reports carry buyer PII and are
+                              # kept out of this repo; see "Data & privacy")
 ```
 
 ## Typography
