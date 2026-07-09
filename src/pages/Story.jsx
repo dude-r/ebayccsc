@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { CCSC_DATA as D } from '../data/ccsc-data.js'
+import { useData } from '../lib/dataContext.js'
 import { usd, usd2 } from '../lib/format.js'
 import SectionHeader from '../components/SectionHeader.jsx'
 
@@ -7,6 +7,7 @@ import SectionHeader from '../components/SectionHeader.jsx'
 // prototype's renderVals(). Rendered at the canonical Daylight/Fira look
 // (the prototype's ambience/typeface tweaks were exploratory and omitted).
 export default function Story() {
+  const D = useData()
   const H = D.H1
   const M = D.monthly
   const meta = D.meta

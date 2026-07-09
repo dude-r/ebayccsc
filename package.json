@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "build:data": "node scripts/build-data.mjs"
+    "build:data": "node scripts/build-data.mjs",
+    "encrypt": "node scripts/encrypt-data.mjs",
+    "data": "npm run build:data && npm run encrypt"
   },
   "dependencies": {
     "react": "^18.3.1",

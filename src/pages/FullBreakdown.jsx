@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { CCSC_DATA as D } from '../data/ccsc-data.js'
+import { useData } from '../lib/dataContext.js'
 import { usd, usd2, signed } from '../lib/format.js'
 import {
   DEFAULT_COST_MODEL,
@@ -40,6 +40,7 @@ export default function FullBreakdown() {
   const [sort, setSort] = useState({ key: 'sale', dir: -1 })
   const [detailId, setDetailId] = useState(null)
 
+  const D = useData()
   const meta = D.meta
   const cards = D.cards
   const MON = D.monthly

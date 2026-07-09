@@ -8,10 +8,13 @@ A React + Vite implementation of the **CCSC H1 2026 Full Breakdown** dashboard
 and its companion **Story** summary, built from the Claude Design handoff
 prototypes (kept for reference under `design/`).
 
-Every figure is computed from the pre-reconciled H1 2026 dataset
-(`src/data/ccsc-data.js`), which was derived from Cream City Sports Cards'
-eBay transaction ledger, orders report, listing-quality report, and Jun 26 YTD
-traffic report. No backend, no invented numbers.
+Every figure is computed from the pre-reconciled H1 2026 dataset, derived from
+Cream City Sports Cards' eBay transaction ledger, orders report, listing-quality
+report, and Jun 26 YTD traffic report. No backend, no invented numbers.
+
+The report is **password-protected**: the site ships only encrypted data and
+decrypts it in the browser once the viewer enters the password (see
+[Password protection](#password-protection)).
 
 ## Pages
 
@@ -39,35 +42,74 @@ npm run dev        # dev server with HMR
 npm run build      # production build → dist/
 npm run preview    # serve the production build
 npm test           # reconciliation + privacy tests (Vitest)
-npm run build:data # regenerate src/data/ccsc-data.js from design/project/
+npm run data       # regenerate + re-encrypt the dataset (build:data → encrypt)
 ```
+
+## Password protection
+
+The dashboard is gated. Only `public/ccsc-data.enc.json` (AES-256-GCM ciphertext,
+PBKDF2-derived key) is committed and deployed — **no plaintext financials ship**
+in the repo or the JS bundle. On load, the site shows a password screen; the
+correct password decrypts the data in the browser (Web Crypto) and the report
+renders. A wrong password can't decrypt anything.
+
+**Set / change the password** (do this before sharing the link):
+
+```bash
+SITE_PASSWORD='your-strong-password' npm run encrypt
+git add public/ccsc-data.enc.json && git commit -m "Rotate report password" && git push
+```
+
+That re-encrypts the blob with the new password and redeploys. The password is
+never stored in the repo or the deployed site.
+
+Notes / limits:
+- It's **one shared password** — anyone you give it to can view; there's no
+  per-person access or logout, and it can't be revoked short of rotating it.
+- A weak password can be brute-forced offline against the downloaded blob, so
+  pick a strong one. (PBKDF2 at 250k iterations slows that down.)
+- For real per-person logins (revocable, logged), put the site behind Cloudflare
+  Access on a custom domain instead.
 
 ## Data & privacy
 
-`src/data/ccsc-data.js` is **generated** by `scripts/build-data.mjs` from the
-canonical dataset in `design/project/`. The build step scrubs buyer PII —
-it drops every `city`/`state` field and the unused buyer `orders[]` table, and
-masks eBay order ids to their last 4 digits — so no customer data ships in this
-public repo. `npm test` enforces both the ledger reconciliation invariants and
-the no-PII guarantee, and CI runs it on every push and PR.
+The dataset flows through a scrub + encrypt pipeline, none of which commits
+plaintext data to this public repo:
+
+1. Your raw eBay-derived dataset lives untracked at `raw/ccsc-data-source.js`.
+2. `npm run build:data` (`scripts/build-data.mjs`) scrubs buyer PII — drops every
+   `city`/`state` field and the buyer `orders[]` table, masks eBay order ids to
+   their last 4 digits — and writes the scrubbed data to `raw/` (also untracked).
+3. `npm run encrypt` (`scripts/encrypt-data.mjs`) encrypts that into
+   `public/ccsc-data.enc.json`, the only data form that is committed/deployed.
+
+`npm test` enforces the ledger reconciliation invariants and that the shipped
+blob is opaque ciphertext with no PII; CI runs it on every push and PR.
 
 ## Structure
 
 ```
 src/
-  main.jsx                    # router + entry
+  main.jsx                    # router + entry, wrapped in the password gate
   styles.css                  # global palette, fonts, hover/focus treatments
-  data/ccsc-data.js           # reconciled dataset (generated; do not hand-edit)
   lib/
+    crypto.js                 # in-browser fetch + AES-GCM decrypt of the data
+    dataContext.js            # React context + useData() for the unlocked data
     format.js                 # usd / usd2 / signed currency helpers
     costModel.js              # acquisition-cost model + labels
   components/
+    PasswordGate.jsx          # password screen; decrypts + provides data
     SectionHeader.jsx         # numbered section header
     CostModelControl.jsx      # on-page cost-model picker (replaces prototype "Tweaks")
     CardDetailModal.jsx       # per-card eBay-style order breakdown
   pages/
     FullBreakdown.jsx         # the full dashboard
     Story.jsx                 # the narrative summary
+public/
+  ccsc-data.enc.json          # encrypted dataset (the only data that ships)
+scripts/
+  build-data.mjs              # scrub PII → raw/ (untracked)
+  encrypt-data.mjs            # encrypt scrubbed data → public/ccsc-data.enc.json
 
 design/                       # original Claude Design handoff (reference only)
   README.md                   # handoff notes

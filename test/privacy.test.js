@@ -1,32 +1,52 @@
 import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { CCSC_DATA as D } from '../src/data/ccsc-data.js'
 
-// This is a PUBLIC repo and the dataset ships to a public site. These tests
-// fail loudly if a data regeneration ever reintroduces buyer PII or raw order
-// identifiers. Run scripts/build-data.mjs to (re)produce a compliant dataset.
+// This is a PUBLIC repo and the app deploys to a public URL. These tests fail
+// loudly if buyer PII, raw order ids, or plaintext financials ever ship.
+const url = (p) => fileURLToPath(new URL(p, import.meta.url))
 
-const dataFile = fileURLToPath(new URL('../src/data/ccsc-data.js', import.meta.url))
-const rawText = readFileSync(dataFile, 'utf8')
+const scrubbedPath = url('../raw/ccsc-data.scrubbed.json')
+const encPath = url('../public/ccsc-data.enc.json')
 
-describe('no buyer PII in the shipped dataset', () => {
-  it('contains no city or state fields anywhere', () => {
-    expect(rawText).not.toMatch(/"city"\s*:/)
-    expect(rawText).not.toMatch(/"state"\s*:/)
+describe.skipIf(!existsSync(scrubbedPath))('scrubbed dataset carries no buyer PII', () => {
+  const text = existsSync(scrubbedPath) ? readFileSync(scrubbedPath, 'utf8') : ''
+  const D = text ? JSON.parse(text) : {}
+
+  it('contains no city or state fields', () => {
+    expect(text).not.toMatch(/"city"\s*:/)
+    expect(text).not.toMatch(/"state"\s*:/)
   })
 
   it('has no top-level orders[] buyer table', () => {
     expect(D.orders).toBeUndefined()
   })
 
-  it('exposes no unmasked eBay order ids (only last 4 digits kept)', () => {
-    for (const c of D.cards) {
+  it('exposes no unmasked eBay order ids (last 4 digits only)', () => {
+    for (const c of D.cards ?? []) {
       if (c.order == null) continue
-      // A compliant masked id reveals at most 4 digits total.
       const digits = String(c.order).replace(/\D/g, '')
       expect(digits.length, `order "${c.order}" exposes too many digits`).toBeLessThanOrEqual(4)
       expect(c.order).toMatch(/•/)
+    }
+  })
+})
+
+describe.skipIf(!existsSync(encPath))('the SHIPPED data blob is opaque ciphertext', () => {
+  const text = readFileSync(encPath, 'utf8')
+  const blob = JSON.parse(text)
+
+  it('is an AES-GCM / PBKDF2 envelope with salt+iv+ciphertext', () => {
+    expect(blob.alg).toBe('AES-GCM')
+    expect(blob.kdf).toMatch(/PBKDF2/)
+    expect(blob.iterations).toBeGreaterThanOrEqual(100000)
+    for (const k of ['salt', 'iv', 'ct']) expect(typeof blob[k]).toBe('string')
+  })
+
+  it('leaks no plaintext financials or PII', () => {
+    // Nothing recognizable from the dataset should appear in the ciphertext.
+    for (const needle of ['"city"', '"state"', 'Risacher', 'net_after_supplies', 'item_sales', 'Cream City']) {
+      expect(text).not.toContain(needle)
     }
   })
 })
