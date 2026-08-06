@@ -39,6 +39,10 @@ jobs:
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          # Create the Pages site if it doesn't exist (it was dropped when the
+          # repo was temporarily private on a free plan).
+          enablement: true
 
       - name: Upload build artifact
         uses: actions/upload-pages-artifact@v3
