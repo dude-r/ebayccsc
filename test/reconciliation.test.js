@@ -72,6 +72,14 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
     })
   })
 
+  describe('prior-year baseline', () => {
+    it('carries the 2025 baseline with all 12 months', () => {
+      expect(D.prior_year?.year).toBe(2025)
+      expect(Object.keys(D.prior_year.monthly)).toHaveLength(12)
+      expect(near(D.prior_year.revenue, D.prior_year.item_sales + D.prior_year.ship_charged)).toBe(true)
+    })
+  })
+
   describe('card grid integrity', () => {
     it('has exactly the pinned number of card records', () => {
       expect(D.cards).toHaveLength(PINS.cards)

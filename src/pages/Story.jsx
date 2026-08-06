@@ -49,20 +49,28 @@ export default function Story() {
     seg('Refunds & a lost card', losses, '#5C2E14', '#EDD9C8', usd(-H.claim) + ' was a single card lost in the mail in March.'),
   ]
 
-  // Ch3 — monthly bars
-  const maxSales = Math.max(...M.map((m) => m.item_sales))
+  // Ch3 — monthly bars (with a faint prior-year bar when the baseline exists)
+  const PY = D.prior_year
+  const pyMonth = (mo) => (PY ? (PY.monthly[mo] || {}).item || 0 : 0)
+  const maxCur = Math.max(...M.map((m) => m.item_sales))
+  const maxSales = Math.max(maxCur, ...M.map((m) => pyMonth(m.month)))
   const monthBars = M.map((m) => {
-    const big = m.item_sales === maxSales
+    const big = m.item_sales === maxCur
     return {
       label: m.month,
       valFmt: usd(m.item_sales),
       h: Math.max(4, Math.round((m.item_sales / maxSales) * 100)),
+      hPy: PY ? Math.max(2, Math.round((pyMonth(m.month) / maxSales) * 100)) : 0,
       color: big ? '#1B5E43' : '#A9BCA9',
       valColor: big ? '#164A35' : '#8A8272',
       lblColor: big ? '#221F1A' : '#8A8272',
     }
   })
-  const janShare = Math.round((maxSales / H.item_sales) * 100) + '%'
+  const janShare = Math.round((maxCur / H.item_sales) * 100) + '%'
+  // Prior-year seasonality: what months led last year, and what H2 did vs H1.
+  const pySorted = PY ? Object.entries(PY.monthly).sort((a, b) => b[1].item - a[1].item) : []
+  const pyH2 = PY ? ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].reduce((a, mo) => a + pyMonth(mo), 0) : 0
+  const pyH1 = PY ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].reduce((a, mo) => a + pyMonth(mo), 0) : 0
 
   // Ch4 — top 3
   const top3 = D.top.slice(0, 3).map((t, i) => ({
@@ -234,12 +242,21 @@ export default function Story() {
               {monthBars.map((b) => (
                 <div key={b.label} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%' }}>
                   <div className="tnum" style={{ fontSize: 11.5, fontWeight: 700, color: b.valColor, marginBottom: 5 }}>{b.valFmt}</div>
-                  <div style={{ width: '70%', maxWidth: 64, height: b.h + '%', background: b.color, borderRadius: '6px 6px 0 0' }} />
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, width: '70%', maxWidth: 64, height: '100%', justifyContent: 'center' }}>
+                    <div style={{ flex: 2, height: b.h + '%', background: b.color, borderRadius: '6px 6px 0 0' }} />
+                    {PY ? <div style={{ flex: 1, height: b.hPy + '%', background: '#D8D0BE', borderRadius: '4px 4px 0 0' }} /> : null}
+                  </div>
                   <div className="tnum" style={{ position: 'absolute', bottom: 0, fontSize: 12, fontWeight: 600, color: b.lblColor }}>{b.label}</div>
                 </div>
               ))}
             </div>
           </div>
+          {PY ? (
+            <div style={{ fontSize: 10.5, color: '#8A8272', marginTop: 6 }}>
+              <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: '#A9BCA9', marginRight: 5, verticalAlign: 'middle' }} />2026
+              <span style={{ display: 'inline-block', width: 9, height: 9, borderRadius: 2, background: '#D8D0BE', margin: '0 5px 0 14px', verticalAlign: 'middle' }} />{PY.year}, same month
+            </div>
+          ) : null}
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12, background: '#F1EBDD', border: '1px solid #E0D8C7', borderRadius: 11, padding: '12px 15px', maxWidth: 640 }}>
           <span style={{ fontSize: 14, lineHeight: 1.4 }}>→</span>
@@ -247,6 +264,15 @@ export default function Story() {
             One more thing hit this chart: a card <b>lost in the mail in March</b> cost you <b className="tnum">{usd(-H.claim)}</b> — it erased most of that month.
           </p>
         </div>
+        {PY && pyH2 > pyH1 ? (
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 10, background: '#DCEAE0', border: '1px solid #BFD6C6', borderRadius: 11, padding: '12px 15px', maxWidth: 640 }}>
+            <span style={{ fontSize: 14, lineHeight: 1.4 }}>📈</span>
+            <p style={{ margin: 0, fontSize: 13, color: '#2C4638', lineHeight: 1.55 }}>
+              <b>{PY.year} says your season is ahead:</b> the back half out-earned the front half ({usd(pyH2)} vs {usd(pyH1)}), and the three biggest months were{' '}
+              {pySorted.slice(0, 3).map(([mo, v]) => `${mo} (${usd(v.item)})`).join(', ')}. The slow summer isn't the story — Q4 is.
+            </p>
+          </div>
+        ) : null}
       </section>
 
       {/* CH 4 · THREE CARDS */}

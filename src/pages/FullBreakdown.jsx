@@ -98,9 +98,18 @@ export default function FullBreakdown() {
 
   // ---- KPIs ----
   const feePct = (sum('full_ledger_fees') / sum('item_sales')) * 100
+  // Same-months prior-year comparison (item sales basis, tax excluded on both
+  // sides). Renders only when the dataset carries a prior_year baseline.
+  const PY = D.prior_year
+  const pySum = (f) => (PY ? MON.reduce((a, m) => a + ((PY.monthly[m.month] || {})[f] || 0), 0) : 0)
+  const yoy = (cur, prior) => {
+    if (!PY || !prior) return null
+    const pct = ((cur - prior) / prior) * 100
+    return { text: (pct >= 0 ? '▲' : '▼') + Math.abs(pct).toFixed(1) + '% vs ' + PY.year, color: pct >= 0 ? '#1B5E43' : '#B4531F' }
+  }
   const kpis = [
-    { label: 'Cards sold', val: String(sum('cards_net')), sub: 'across ' + sum('orders') + ' orders', color: '#221F1A' },
-    { label: 'Item sales', val: usd(sum('item_sales')), sub: 'before any costs', color: '#221F1A' },
+    { label: 'Cards sold', val: String(sum('cards_net')), sub: 'across ' + sum('orders') + ' orders', color: '#221F1A', yoy: yoy(sum('cards_net'), pySum('rows')) },
+    { label: 'Item sales', val: usd(sum('item_sales')), sub: 'before any costs', color: '#221F1A', yoy: yoy(sum('item_sales'), pySum('item')) },
     { label: 'Total costs', val: usd(sum('full_ledger_fees') + sum('supplies')), sub: feePct.toFixed(0) + '% of sales', color: '#B4531F' },
     { label: 'Net kept', val: usd(totNet), sub: 'after eBay fees + supplies', color: '#1B5E43' },
     {
@@ -359,6 +368,7 @@ export default function FullBreakdown() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#6B6459', textTransform: 'uppercase', letterSpacing: '.5px' }}>{k.label}</div>
             <div className="tnum" style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-.6px', marginTop: 7, color: k.color }}>{k.val}</div>
             <div style={{ fontSize: 11, color: '#8A8272', marginTop: 3 }}>{k.sub}</div>
+            {k.yoy && <div className="tnum" style={{ fontSize: 11, fontWeight: 700, marginTop: 4, color: k.yoy.color }}>{k.yoy.text}</div>}
           </div>
         ))}
       </div>
