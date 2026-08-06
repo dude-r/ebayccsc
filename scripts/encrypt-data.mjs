@@ -29,7 +29,7 @@ const data = JSON.parse(readFileSync(SRC, 'utf8'))
 
 // Guard: never encrypt/ship a dataset that doesn't reconcile.
 const near = (a, b) => Math.abs(a - b) < 0.01
-if (!near(data.H1?.net_after_supplies, 1614.09) || data.cards?.length !== 112) {
+if (!near(data.H1?.net_after_supplies, 1714.01) || data.cards?.length !== 127) {
   console.error('Reconciliation check failed — refusing to encrypt. Regenerate with npm run build:data.')
   process.exit(1)
 }

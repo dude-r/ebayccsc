@@ -73,10 +73,16 @@ export default function Story() {
     kept: usd2(t.net_after_supplies),
   }))
   const t3 = D.top.slice(0, 3).reduce((a, t) => a + t.net_after_supplies, 0)
-  const bb = D.sport['Baseball']
+  // Best sport is computed, and the "combined" boast only renders when true.
+  const [bestSportName, bestSport] = Object.entries(D.sport).reduce((a, b) =>
+    b[1].net_after_supplies > a[1].net_after_supplies ? b : a
+  )
+  const fbPlusBb =
+    (D.sport['Football']?.net_after_supplies || 0) + (D.sport['Basketball']?.net_after_supplies || 0)
+  const beatsCombined = bestSportName === 'Baseball' && bestSport.net_after_supplies > fbPlusBb
 
   // Ch5 — fee load
-  const fixedMo = (H.insertion + H.gallery + H.store_sub + H.promo_offsite + H.promo_general) / 6
+  const fixedMo = (H.insertion + H.gallery + H.store_sub + H.promo_offsite + H.promo_general) / M.length
   const maxLoad = Math.max(...M.map((m) => m.fee_load))
   const loadRows = M.map((m) => {
     const worst = m.fee_load === maxLoad
@@ -111,7 +117,7 @@ export default function Story() {
         (ga ? (-ga.avgMargin).toFixed(2) : '1.16') +
         ' more than buyers paid — ' +
         gaLoss +
-        ' total in H1. Raise the shipping price on heavier cards or fold it into the item price. Standard Envelope is fine as-is.',
+        ' total so far in 2026. Raise the shipping price on heavier cards or fold it into the item price. Standard Envelope is fine as-is.',
     },
     {
       n: 2,
@@ -131,8 +137,11 @@ export default function Story() {
     },
   ]
 
+  const MONTH_FULL = { Jan: 'January', Feb: 'February', Mar: 'March', Apr: 'April', May: 'May', Jun: 'June', Jul: 'July', Aug: 'August', Sep: 'September', Oct: 'October', Nov: 'November', Dec: 'December' }
+  const lastM = M[M.length - 1]
   const janLoad = Math.round(M[0].fee_load)
-  const junLoad = Math.round(M[5].fee_load)
+  const lastLoad = Math.round(lastM.fee_load)
+  const lastName = MONTH_FULL[lastM.month] || lastM.month
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 20px 90px' }}>
@@ -143,7 +152,7 @@ export default function Story() {
           <div>
             <div style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-.4px', lineHeight: 1.1 }}>{meta.seller}</div>
             <div style={{ fontSize: 12.5, color: '#6B6459', marginTop: 2 }}>
-              How the first half of 2026 went · <span className="tnum">{meta.period}</span>
+              How 2026 is going · <span className="tnum">{meta.period}</span>
             </div>
           </div>
         </div>
@@ -151,7 +160,7 @@ export default function Story() {
           <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#1B5E43' }} />
           <div style={{ lineHeight: 1.15 }}>
             <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '.6px', color: '#8A8272', fontWeight: 700 }}>Data through</div>
-            <div className="tnum" style={{ fontSize: 12.5, fontWeight: 600 }}>Jun 30, 2026</div>
+            <div className="tnum" style={{ fontSize: 12.5, fontWeight: 600 }}>{meta.data_through || 'Jun 30, 2026'}</div>
           </div>
         </div>
       </div>
@@ -214,7 +223,7 @@ export default function Story() {
 
       {/* CH 3 · JANUARY CARRIED IT */}
       <section style={{ marginTop: 44 }}>
-        <SectionHeader n={2} title="January carried the half" size="sm" />
+        <SectionHeader n={2} title="January is still carrying the year" size="sm" />
         <p style={{ fontSize: 14, color: '#524B3F', lineHeight: 1.6, maxWidth: 640, margin: '10px 0 18px' }}>
           <b className="tnum">{janShare}</b> of everything you sold happened in January. Every month since has been a fraction of it — this is a hit-driven business, and January had the hits.
         </p>
@@ -265,7 +274,7 @@ export default function Story() {
           ))}
         </div>
         <p style={{ fontSize: 13, color: '#6B6459', lineHeight: 1.6, maxWidth: 640, margin: '14px 0 0' }}>
-          Baseball was your best sport overall — <b className="tnum">{usd(bb.net_after_supplies)}</b> kept across {bb.cards} cards, more than football and basketball combined.
+          {bestSportName} was your best sport overall — <b className="tnum">{usd(bestSport.net_after_supplies)}</b> kept across {bestSport.cards} cards{beatsCombined ? ', more than football and basketball combined' : ''}.
         </p>
       </section>
 
@@ -273,7 +282,7 @@ export default function Story() {
       <section style={{ marginTop: 44 }}>
         <SectionHeader n={4} title="Small months get eaten by fixed costs" accent="#B4531F" size="sm" />
         <p style={{ fontSize: 14, color: '#524B3F', lineHeight: 1.6, maxWidth: 640, margin: '10px 0 18px' }}>
-          Store subscription, listing fees and ads cost you roughly <b className="tnum">{usd(fixedMo)}/month</b> whether you sell or not. In a big month that's nothing; in a slow month it eats the profit. Costs took <b>{junLoad}¢ of every sales dollar in June</b>, vs <b>{janLoad}¢ in January</b>.
+          Store subscription, listing fees and ads cost you roughly <b className="tnum">{usd(fixedMo)}/month</b> whether you sell or not. In a big month that's nothing; in a slow month it eats the profit. Costs took <b>{lastLoad}¢ of every sales dollar in {lastName}</b>, vs <b>{janLoad}¢ in January</b>.
         </p>
 
         <div style={{ background: '#FBF9F4', border: '1px solid #E0D8C7', borderRadius: 14, padding: '20px 22px 14px' }}>
@@ -329,7 +338,7 @@ export default function Story() {
       {/* MOVES */}
       <section style={{ marginTop: 44 }}>
         <div style={{ background: '#221F1A', borderRadius: 18, padding: '28px 30px', color: '#EDE7DB' }}>
-          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: '#A79F8F' }}>So what now · three moves for H2</div>
+          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '1.4px', textTransform: 'uppercase', color: '#A79F8F' }}>So what now · three moves for the months ahead</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 20, marginTop: 18 }}>
             {moves.map((m) => (
               <div key={m.n}>

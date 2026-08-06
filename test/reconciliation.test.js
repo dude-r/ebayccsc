@@ -16,17 +16,17 @@ const sumBy = (arr, f) => arr.reduce((a, x) => a + f(x), 0)
 
 describe.skipIf(!present)('CCSC dataset reconciliation', () => {
   describe('H1 headline', () => {
-    it('nets to $1,614.09 after supplies', () => {
-      expect(near(D.H1.net_after_supplies, 1614.09)).toBe(true)
+    it('nets to $1,714.01 after supplies', () => {
+      expect(near(D.H1.net_after_supplies, 1714.01)).toBe(true)
     })
 
     it('net proceeds − supplies = net after supplies (waterfall closes)', () => {
       expect(near(D.H1.net_proceeds - D.H1.supplies, D.H1.net_after_supplies)).toBe(true)
     })
 
-    it('has 112 cards sold across 116 orders', () => {
-      expect(D.H1.cards_net).toBe(112)
-      expect(D.H1.orders).toBe(116)
+    it('has 127 cards sold across 131 orders', () => {
+      expect(D.H1.cards_net).toBe(127)
+      expect(D.H1.orders).toBe(131)
     })
   })
 
@@ -38,8 +38,8 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
       })
     }
 
-    it('covers exactly the six H1 months', () => {
-      expect(D.monthly.map((m) => m.month)).toEqual(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'])
+    it('covers Jan through Jul 2026', () => {
+      expect(D.monthly.map((m) => m.month)).toEqual(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'])
     })
   })
 
@@ -48,24 +48,29 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
     // collection time even when skipped, so it must not dereference D.
     const pick = (months) => D.monthly.filter((m) => months.includes(m.month))
 
-    it('Q1 + Q2 item sales === H1 item sales', () => {
+    it('Q1 + Q2 + Q3 item sales === YTD item sales', () => {
       const q1 = pick(['Jan', 'Feb', 'Mar'])
       const q2 = pick(['Apr', 'May', 'Jun'])
-      expect(near(sumBy(q1, (m) => m.item_sales) + sumBy(q2, (m) => m.item_sales), D.H1.item_sales)).toBe(true)
+      const q3 = pick(['Jul', 'Aug', 'Sep'])
+      expect(near(sumBy(q1, (m) => m.item_sales) + sumBy(q2, (m) => m.item_sales) + sumBy(q3, (m) => m.item_sales), D.H1.item_sales)).toBe(true)
     })
 
-    it('Q1 + Q2 net kept === H1 net kept', () => {
+    it('Q1 + Q2 + Q3 net kept === YTD net kept', () => {
       const q1 = pick(['Jan', 'Feb', 'Mar'])
       const q2 = pick(['Apr', 'May', 'Jun'])
+      const q3 = pick(['Jul', 'Aug', 'Sep'])
       expect(
-        near(sumBy(q1, (m) => m.net_after_supplies) + sumBy(q2, (m) => m.net_after_supplies), D.H1.net_after_supplies)
+        near(
+          sumBy(q1, (m) => m.net_after_supplies) + sumBy(q2, (m) => m.net_after_supplies) + sumBy(q3, (m) => m.net_after_supplies),
+          D.H1.net_after_supplies
+        )
       ).toBe(true)
     })
   })
 
   describe('card grid integrity', () => {
-    it('has exactly 112 card records', () => {
-      expect(D.cards).toHaveLength(112)
+    it('has exactly 127 card records', () => {
+      expect(D.cards).toHaveLength(127)
     })
 
     it('every card has the fields the report renders', () => {

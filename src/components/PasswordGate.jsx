@@ -70,7 +70,7 @@ export default function PasswordGate({ children }) {
           </div>
           <div>
             <div style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-.4px', lineHeight: 1.1 }}>Cream City Sports Cards</div>
-            <div style={{ fontSize: 12.5, color: '#6B6459', marginTop: 2 }}>H1 2026 financial report</div>
+            <div style={{ fontSize: 12.5, color: '#6B6459', marginTop: 2 }}>2026 financial report</div>
           </div>
         </div>
 

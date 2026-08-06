@@ -12,8 +12,8 @@ import SectionHeader from '../components/SectionHeader.jsx'
 import CostModelControl from '../components/CostModelControl.jsx'
 import CardDetailModal from '../components/CardDetailModal.jsx'
 
-const ORDER = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-const qOf = (m) => (ORDER.indexOf(m) < 3 ? 'Q1' : 'Q2')
+const MONTH_SEQ = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const qOf = (m) => 'Q' + (Math.floor(MONTH_SEQ.indexOf(m) / 3) + 1)
 
 function sportColor(s) {
   if (/Baseball/.test(s)) return ['#DCEAE0', '#1B5E43']
@@ -61,11 +61,8 @@ export default function FullBreakdown() {
 
   // ---- MONTHLY (authoritative ledger from MON) ----
   const monthRows = useMemo(() => {
-    const byMon = {}
-    MON.forEach((m) => (byMon[m.month] = m))
-    return ORDER.map((mo) => {
-      const m = byMon[mo]
-      if (!m) return null
+    return MON.map((m) => {
+      const mo = m.month
       const acqM = cardAcq[mo] || 0
       const net = m.net_after_supplies
       const profit = net - acqM
@@ -83,7 +80,7 @@ export default function FullBreakdown() {
         profit: monthing ? usd2(profit) : usd2(net),
         profitColor: monthing ? (profit < 0 ? '#B4531F' : '#1B5E43') : '#1B5E43',
       }
-    }).filter(Boolean)
+    })
   }, [MON, cardAcq, monthing])
 
   const sum = (f) => MON.reduce((a, m) => a + m[f], 0)
@@ -123,6 +120,7 @@ export default function FullBreakdown() {
     const acq = ms.reduce((a, m) => a + (cardAcq[m.month] || 0), 0)
     return { sales, net, cards: cardsN, costs, acq, asp: sales / cardsN, margin: (net / sales) * 100 }
   }
+  const qNames = [...new Set(MON.map((m) => qOf(m.month)))]
   const q1 = qAgg('Q1'), q2 = qAgg('Q2')
   const qStat = (q) => {
     const base = [
@@ -136,10 +134,19 @@ export default function FullBreakdown() {
     if (monthing) base.push({ label: 'Modeled profit', val: usd(q.net - q.acq) })
     return base
   }
-  const quarters = [
-    { name: 'Q1', span: 'Jan – Mar', bg: '#164A35', bd: '#123C2B', fg: '#F4EFDF', stats: qStat(q1) },
-    { name: 'Q2', span: 'Apr – Jun', bg: '#FBF9F4', bd: '#E0D8C7', fg: '#221F1A', stats: qStat(q2) },
-  ]
+  const quarters = qNames.map((name, i) => {
+    const ms = MON.filter((m) => qOf(m.month) === name).map((m) => m.month)
+    const span = ms.length === 3 ? `${ms[0]} – ${ms[2]}` : ms.length === 1 ? `${ms[0]} (so far)` : `${ms[0]} – ${ms[ms.length - 1]} (so far)`
+    const dark = i === 0
+    return {
+      name,
+      span,
+      bg: dark ? '#164A35' : '#FBF9F4',
+      bd: dark ? '#123C2B' : '#E0D8C7',
+      fg: dark ? '#F4EFDF' : '#221F1A',
+      stats: qStat(qAgg(name)),
+    }
+  })
   const delta = (a, b) => ((b - a) / a) * 100
   const mkD = (label, a, b, note, invert) => {
     const d = delta(a, b)
@@ -147,14 +154,14 @@ export default function FullBreakdown() {
     return { label, pct: Math.abs(d).toFixed(0) + '%', arrow: d >= 0 ? '▲' : '▼', color: good ? '#1B5E43' : '#B4531F', note }
   }
   const qDeltas = [
-    mkD('Item sales', q1.sales, q2.sales, 'Q1 rode January'),
-    mkD('Cards sold', q1.cards, q2.cards, 'more volume in Q2', false),
-    mkD('Avg price', q1.asp, q2.asp, 'half the price point'),
-    mkD('Net margin', q1.margin, q2.margin, 'costs ate more of each sale'),
+    mkD('Item sales, Q1 → Q2', q1.sales, q2.sales, 'Q1 rode January'),
+    mkD('Cards sold, Q1 → Q2', q1.cards, q2.cards, 'more volume in Q2', false),
+    mkD('Avg price, Q1 → Q2', q1.asp, q2.asp, 'half the price point'),
+    mkD('Net margin, Q1 → Q2', q1.margin, q2.margin, 'costs ate more of each sale'),
   ]
 
   // ---- BY CARD ----
-  const monthChips = ['All', ...ORDER].map((m) => ({ label: m, active: monthF === m, on: () => setMonthF(m) }))
+  const monthChips = ['All', ...MON.map((m) => m.month)].map((m) => ({ label: m, active: monthF === m, on: () => setMonthF(m) }))
   const sportChips = ['All', 'Baseball', 'Football', 'Basketball', 'Other'].map((s) => ({
     label: s,
     active: sportF === s,
@@ -293,7 +300,7 @@ export default function FullBreakdown() {
             <div style={{ fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '.6px', color: '#8A8272', fontWeight: 700 }}>
               Data through
             </div>
-            <div className="tnum" style={{ fontSize: 12.5, fontWeight: 600 }}>Jun 30, 2026</div>
+            <div className="tnum" style={{ fontSize: 12.5, fontWeight: 600 }}>{meta.data_through || 'Jun 30, 2026'}</div>
           </div>
         </div>
       </div>
@@ -360,7 +367,7 @@ export default function FullBreakdown() {
       <section style={{ marginTop: 40 }}>
         <SectionHeader n={1} title="Month by month" />
         <p style={{ fontSize: 13.5, color: '#524B3F', lineHeight: 1.6, maxWidth: 760, margin: '10px 0 16px' }}>
-          Every dollar that came in, every cost that came out, and what was left — for each month of H1.{' '}
+          Every dollar that came in, every cost that came out, and what was left — for each month of 2026 so far.{' '}
           <span style={{ color: '#8A8272' }}>
             Fees are the full ledger (per-sale + fixed store &amp; listing). "Modeled profit" subtracts the cost assumption
             above.
@@ -402,7 +409,7 @@ export default function FullBreakdown() {
             </tbody>
             <tfoot>
               <tr style={{ background: '#164A35', color: '#F4EFDF' }}>
-                <td style={{ padding: '13px 14px', fontSize: 13, fontWeight: 800 }}>H1 total</td>
+                <td style={{ padding: '13px 14px', fontSize: 13, fontWeight: 800 }}>{meta.period_short || 'H1'} total</td>
                 <td className="tnum" style={{ textAlign: 'right', padding: '13px 10px', fontSize: 13, fontWeight: 700 }}>{tot.cards}</td>
                 <td className="tnum" style={{ textAlign: 'right', padding: '13px 10px', fontSize: 13, fontWeight: 700 }}>{tot.sales}</td>
                 <td className="tnum" style={{ textAlign: 'right', padding: '13px 10px', fontSize: 13, fontWeight: 700, color: '#F0C9A8' }}>{tot.fees}</td>
@@ -419,13 +426,13 @@ export default function FullBreakdown() {
 
       {/* ================= QUARTERLY ================= */}
       <section style={{ marginTop: 44 }}>
-        <SectionHeader n={2} title="Q1 vs Q2 — a tale of two quarters" />
+        <SectionHeader n={2} title="Quarter by quarter" />
         <p style={{ fontSize: 13.5, color: '#524B3F', lineHeight: 1.6, maxWidth: 760, margin: '10px 0 18px' }}>
           Q1 was carried by a monster January. Q2 moved <b>more cards</b> but at <b>half the average price</b> — so costs ate a
-          bigger share and margin compressed.
+          bigger share and margin compressed. Q3 is still in progress.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 14 }}>
           {quarters.map((q) => (
             <div key={q.name} className="lift" style={{ background: q.bg, border: '1px solid ' + q.bd, borderRadius: 15, padding: '20px 22px', color: q.fg }}>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
@@ -464,7 +471,7 @@ export default function FullBreakdown() {
       <section style={{ marginTop: 44 }}>
         <SectionHeader n={3} title="Every card, in full detail" />
         <p style={{ fontSize: 13.5, color: '#524B3F', lineHeight: 1.6, maxWidth: 760, margin: '10px 0 14px' }}>
-          All <b className="tnum">{cards.length}</b> cards sold in H1. Filter, search, and sort — <b>click any card</b> for the
+          All <b className="tnum">{cards.length}</b> cards sold in 2026 so far. Filter, search, and sort — <b>click any card</b> for the
           full eBay-style order breakdown. <b>Net kept</b> is after eBay fees + supplies; <b>Profit</b> subtracts the modeled
           card cost.
         </p>
