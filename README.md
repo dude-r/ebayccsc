@@ -4,9 +4,9 @@
 
 **▶ Live site: https://dude-r.github.io/ebayccsc/** &nbsp;·&nbsp; [Story summary](https://dude-r.github.io/ebayccsc/#/summary)
 
-A React + Vite implementation of the **CCSC H1 2026 Full Breakdown** dashboard
+A React + Vite implementation of the **CCSC 2026 Full Breakdown** dashboard
 and its companion **Story** summary, built from the Claude Design handoff
-prototypes (kept for reference under `design/`).
+prototypes (kept privately in the cream-city repo).
 
 Every figure is computed from the pre-reconciled H1 2026 dataset, derived from
 Cream City Sports Cards' eBay transaction ledger, orders report, listing-quality
@@ -33,6 +33,33 @@ is modeled**, not measured. The **Cost model** control on the Full Breakdown
 page lets you choose the assumption — Net after fees (hard numbers only),
 Flat $/card, % of sale price, or By price band — and every "modeled profit"
 figure updates live. Drop in real per-card costs later and it becomes exact.
+
+## Monthly close (adding a month)
+
+The **encrypted blob is the canonical dataset** — `scripts/add-month.mjs`
+decrypts it, appends a month, and re-encrypts it. The old
+`raw/ccsc-data-source.js` → `build-data.mjs` path is superseded; running it
+would regress the site to H1.
+
+Pull two reports from eBay for the month:
+
+1. **Payments → Reports → Transaction report** (the month, exactly)
+2. **Orders → All Orders → download** (any range covering the month)
+
+Then:
+
+```bash
+SITE_PASSWORD='…' node scripts/add-month.mjs --orders orders.csv --txn txn.csv
+npx vitest run
+git add public/ccsc-data.enc.json test/pins.json && git commit && git push
+```
+
+**The rule this enforces: no number is final until it reconciles against a
+Payments report.** The Orders export alone shows gross prices — no fees, no
+refunds, no labels. The script cross-checks every order across both files to
+the penny and refuses to write anything on a mismatch. If a card title can't
+be sport-classified automatically, it lists the items and you pass
+`--sports overrides.json` with `{"item_id": "Sport"}`.
 
 ## Develop
 

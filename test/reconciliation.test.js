@@ -8,6 +8,10 @@ import { fileURLToPath } from 'node:url'
 // checkout the file is absent, so these are skipped there and run locally /
 // wherever the data is present.
 const dataPath = fileURLToPath(new URL('../raw/ccsc-data.scrubbed.json', import.meta.url))
+// Expected headline figures for the CURRENT dataset. scripts/add-month.mjs
+// rewrites this file on every monthly update, so tests stay pinned without
+// hand edits.
+const PINS = JSON.parse(readFileSync(fileURLToPath(new URL('./pins.json', import.meta.url)), 'utf8'))
 const present = existsSync(dataPath)
 const D = present ? JSON.parse(readFileSync(dataPath, 'utf8')) : null
 
@@ -16,17 +20,17 @@ const sumBy = (arr, f) => arr.reduce((a, x) => a + f(x), 0)
 
 describe.skipIf(!present)('CCSC dataset reconciliation', () => {
   describe('H1 headline', () => {
-    it('nets to $1,714.01 after supplies', () => {
-      expect(near(D.H1.net_after_supplies, 1714.01)).toBe(true)
+    it('nets to the pinned figure after supplies', () => {
+      expect(near(D.H1.net_after_supplies, PINS.net_after_supplies)).toBe(true)
     })
 
     it('net proceeds − supplies = net after supplies (waterfall closes)', () => {
       expect(near(D.H1.net_proceeds - D.H1.supplies, D.H1.net_after_supplies)).toBe(true)
     })
 
-    it('has 127 cards sold across 131 orders', () => {
-      expect(D.H1.cards_net).toBe(127)
-      expect(D.H1.orders).toBe(131)
+    it('has the pinned card and order counts', () => {
+      expect(D.H1.cards_net).toBe(PINS.cards)
+      expect(D.H1.orders).toBe(PINS.orders)
     })
   })
 
@@ -38,8 +42,8 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
       })
     }
 
-    it('covers Jan through Jul 2026', () => {
-      expect(D.monthly.map((m) => m.month)).toEqual(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'])
+    it('covers exactly the pinned months', () => {
+      expect(D.monthly.map((m) => m.month)).toEqual(PINS.months)
     })
   })
 
@@ -69,8 +73,8 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
   })
 
   describe('card grid integrity', () => {
-    it('has exactly 127 card records', () => {
-      expect(D.cards).toHaveLength(127)
+    it('has exactly the pinned number of card records', () => {
+      expect(D.cards).toHaveLength(PINS.cards)
     })
 
     it('every card has the fields the report renders', () => {

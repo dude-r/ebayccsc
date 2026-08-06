@@ -27,9 +27,11 @@ if (!existsSync(SRC)) {
 
 const data = JSON.parse(readFileSync(SRC, 'utf8'))
 
-// Guard: never encrypt/ship a dataset that doesn't reconcile.
+// Guard: never encrypt/ship a dataset that doesn't reconcile with the pins
+// (test/pins.json, maintained by scripts/add-month.mjs).
+const PINS = JSON.parse(readFileSync(resolve(__dirname, '../test/pins.json'), 'utf8'))
 const near = (a, b) => Math.abs(a - b) < 0.01
-if (!near(data.H1?.net_after_supplies, 1714.01) || data.cards?.length !== 127) {
+if (!near(data.H1?.net_after_supplies, PINS.net_after_supplies) || data.cards?.length !== PINS.cards) {
   console.error('Reconciliation check failed — refusing to encrypt. Regenerate with npm run build:data.')
   process.exit(1)
 }
