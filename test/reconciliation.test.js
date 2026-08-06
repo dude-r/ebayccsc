@@ -80,6 +80,13 @@ describe.skipIf(!present)('CCSC dataset reconciliation', () => {
     })
   })
 
+  describe('traffic snapshot', () => {
+    it('carries a traffic window with impressions', () => {
+      expect(typeof D.traffic?.window).toBe('string')
+      expect(D.traffic.impressions).toBeGreaterThan(0)
+    })
+  })
+
   describe('card grid integrity', () => {
     it('has exactly the pinned number of card records', () => {
       expect(D.cards).toHaveLength(PINS.cards)

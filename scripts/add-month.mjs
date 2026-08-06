@@ -348,6 +348,49 @@ Object.assign(D.meta, {
   data_through: `${MONTH} ${monthEnd}, ${YEAR}`,
 })
 
+// ---------- optional traffic refresh (--traffic csv --traffic-window "Jul 1 – Jul 31, 2026") ----------
+if (args.traffic) {
+  if (!args['traffic-window']) die('--traffic requires --traffic-window "Jul 1 – Jul 31, 2026" (the label shown on the site)')
+  const rows = parseCsv(readFileSync(args.traffic, 'utf8').replace(/^﻿/, ''))
+  const hi = rows.findIndex((r) => r.filter((c) => /impression|page view|click|quantity sold|conversion/i.test(c)).length >= 2)
+  if (hi < 0) die('traffic CSV: no recognizable header row (need impression/page view/sold columns)')
+  const hdr = rows[hi].map((c) => c.toLowerCase())
+  const colSum = (test, exclude = /$^/) => {
+    let tot = 0, found = false
+    hdr.forEach((h, i) => {
+      if (test.test(h) && !exclude.test(h)) {
+        found = true
+        for (const r of rows.slice(hi + 1)) tot += money(r[i])
+      }
+    })
+    return found ? tot : null
+  }
+  const impressions = colSum(/impression/, /promoted|organic|off/)
+  const views = colSum(/page view|listing view/)
+  const sold = colSum(/quantity sold|sold/)
+  const organic = colSum(/organic impression|organic/)
+  const promoted = colSum(/promoted listing|promoted impression/, /off/)
+  const offsite = colSum(/off.?ebay|offsite/)
+  if (impressions == null || views == null) die('traffic CSV: could not find impressions/page-view columns. Headers seen:\n  ' + hdr.join(' | '))
+  const prev = D.traffic || {}
+  const pd = (cur, old) => (old ? r2(((cur - old) / old) * 100) : null)
+  const ctr = r2((views / impressions) * 100), conv = views ? r2(((sold || 0) / views) * 100) : 0
+  D.traffic = {
+    window: args['traffic-window'], compare: prev.window ? `vs ${prev.window}` : 'first tracked window',
+    impressions: Math.round(impressions), impressions_delta: pd(impressions, prev.impressions),
+    views: Math.round(views), views_delta: pd(views, prev.views),
+    sold: Math.round(sold || 0), sold_delta: pd(sold, prev.sold),
+    ctr, ctr_delta: pd(ctr, prev.ctr),
+    conv, conv_delta: pd(conv, prev.conv),
+    sources: [
+      promoted != null && { label: 'Promoted Listings', v: Math.round(promoted), note: 'paid — eBay ad fees', delta: pd(promoted, (prev.sources || []).find((s) => s.label === 'Promoted Listings')?.v) },
+      organic != null && { label: 'Organic', v: Math.round(organic), note: 'free — search & browse', delta: pd(organic, (prev.sources || []).find((s) => s.label === 'Organic')?.v) },
+      offsite != null && { label: 'Promoted Offsite', v: Math.round(offsite), note: 'paid — Google, etc.', delta: pd(offsite, (prev.sources || []).find((s) => s.label === 'Promoted Offsite')?.v) },
+    ].filter(Boolean),
+  }
+  console.log(`  traffic refreshed: ${D.traffic.impressions.toLocaleString()} impressions, window ${D.traffic.window}`)
+}
+
 // ---------- self-checks (mirror the vitest suite) ----------
 const near = (a, b, eps = 0.02) => Math.abs(a - b) < eps
 const sumBy = (arr, f) => arr.reduce((a, x) => a + f(x), 0)

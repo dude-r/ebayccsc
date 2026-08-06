@@ -75,6 +75,21 @@ button {
   background: #e9e3d6;
 }
 
+/* Card grid: full table on desktop, stacked rows on phones. */
+.cards-mobile {
+  display: none;
+}
+@media (max-width: 700px) {
+  .cards-desktop {
+    display: none;
+  }
+  .cards-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

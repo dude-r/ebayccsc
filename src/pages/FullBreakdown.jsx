@@ -32,8 +32,21 @@ const thStyle = {
   color: '#6B6459',
 }
 
+const CM_KEY = 'ccsc-cost-model'
+const loadCm = () => {
+  try {
+    const s = JSON.parse(localStorage.getItem(CM_KEY))
+    if (s && typeof s.model === 'string') return { ...DEFAULT_COST_MODEL, ...s }
+  } catch { /* fresh visit or blocked storage */ }
+  return DEFAULT_COST_MODEL
+}
+
 export default function FullBreakdown() {
-  const [cm, setCm] = useState(DEFAULT_COST_MODEL)
+  const [cm, setCmRaw] = useState(loadCm)
+  const setCm = (v) => {
+    setCmRaw(v)
+    try { localStorage.setItem(CM_KEY, JSON.stringify(v)) } catch { /* private mode */ }
+  }
   const [search, setSearch] = useState('')
   const [monthF, setMonthF] = useState('All')
   const [sportF, setSportF] = useState('All')
@@ -216,20 +229,30 @@ export default function FullBreakdown() {
   const shownNetV = rows.reduce((a, r) => a + r.net, 0)
   const shownProfitV = rows.reduce((a, r) => a + (monthing ? r.profit : r.net), 0)
 
-  // ---- TRAFFIC (from YTD report, 30-day window) ----
-  const trafficKpis = [
-    { label: 'Impressions', val: '592,419', arrow: '▼', delta: '2.2%', color: '#B4531F' },
-    { label: 'Listing views', val: '1,580', arrow: '▲', delta: '36.8%', color: '#1B5E43' },
-    { label: 'Cards sold', val: '15', arrow: '▼', delta: '11.8%', color: '#B4531F' },
-    { label: 'Click-through', val: '0.2%', arrow: '▲', delta: '11.8%', color: '#1B5E43' },
-    { label: 'Conversion', val: '0.9%', arrow: '▼', delta: '35.5%', color: '#B4531F' },
-  ]
-  const T = 592419
-  const sources = [
-    { label: 'Promoted Listings', v: 424380, color: '#B4531F', note: 'paid — eBay ad fees', delta: '▼12.6%', dColor: '#B4531F' },
-    { label: 'Organic', v: 127805, color: '#1B5E43', note: 'free — search & browse', delta: '▲5.9%', dColor: '#1B5E43' },
-    { label: 'Promoted Offsite', v: 40234, color: '#C99A6A', note: 'paid — Google, etc.', delta: 'flat', dColor: '#8A8272' },
-  ].map((s) => ({ ...s, pct: (s.v / T) * 100, pctLabel: ((s.v / T) * 100).toFixed(0) + '%' }))
+  // ---- TRAFFIC (data-driven; refreshed by add-month --traffic) ----
+  const TR = D.traffic
+  const dfmt = (d) =>
+    d == null || d === 0
+      ? { arrow: '', delta: 'flat', color: '#8A8272' }
+      : { arrow: d > 0 ? '▲' : '▼', delta: Math.abs(d).toFixed(1) + '%', color: d > 0 ? '#1B5E43' : '#B4531F' }
+  const trafficKpis = TR
+    ? [
+        { label: 'Impressions', val: TR.impressions.toLocaleString(), ...dfmt(TR.impressions_delta) },
+        { label: 'Listing views', val: TR.views.toLocaleString(), ...dfmt(TR.views_delta) },
+        { label: 'Cards sold', val: String(TR.sold), ...dfmt(TR.sold_delta) },
+        { label: 'Click-through', val: TR.ctr + '%', ...dfmt(TR.ctr_delta) },
+        { label: 'Conversion', val: TR.conv + '%', ...dfmt(TR.conv_delta) },
+      ]
+    : []
+  const SRC_COLORS = { 'Promoted Listings': '#B4531F', Organic: '#1B5E43', 'Promoted Offsite': '#C99A6A' }
+  const T = TR ? TR.impressions : 1
+  const sources = (TR ? TR.sources : []).map((s) => {
+    const f = dfmt(s.delta)
+    return { ...s, color: SRC_COLORS[s.label] || '#8A8272', delta: (f.arrow ? f.arrow : '') + f.delta, dColor: f.color, pct: (s.v / T) * 100, pctLabel: ((s.v / T) * 100).toFixed(0) + '%' }
+  })
+  const paidShare = TR ? Math.round((TR.sources.filter((s) => /promoted/i.test(s.label)).reduce((a, s) => a + s.v, 0) / T) * 100) : 0
+  const promotedSrc = TR ? TR.sources.find((s) => s.label === 'Promoted Listings') : null
+  const organicSrc = TR ? TR.sources.find((s) => s.label === 'Organic') : null
 
   const st = D.funnel.primary.stages
   const ctr = st.find((s) => /Click/.test(s.label))
@@ -507,7 +530,7 @@ export default function FullBreakdown() {
           </div>
         </div>
 
-        <div style={{ overflowX: 'auto', border: '1px solid #E0D8C7', borderRadius: 14, background: '#FBF9F4' }}>
+        <div className="cards-desktop" style={{ overflowX: 'auto', border: '1px solid #E0D8C7', borderRadius: 14, background: '#FBF9F4' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 920 }}>
             <thead>
               <tr style={{ background: '#F1EBDD', borderBottom: '2px solid #E0D8C7' }}>
@@ -553,6 +576,29 @@ export default function FullBreakdown() {
             </tbody>
           </table>
         </div>
+        <div className="cards-mobile">
+          {rows.map((r) => {
+            const [sb, sf] = sportColor(r.c.sport)
+            return (
+              <button
+                key={r.c.item_id}
+                onClick={() => setDetailId(r.c.item_id)}
+                style={{ textAlign: 'left', background: '#FBF9F4', border: '1px solid #E0D8C7', borderRadius: 12, padding: '11px 13px', color: '#221F1A' }}
+              >
+                <div style={{ fontSize: 12.5, fontWeight: 700, lineHeight: 1.35 }}>{r.c.title}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 7, flexWrap: 'wrap' }}>
+                  <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10.5, fontWeight: 700, background: sb, color: sf }}>{r.c.sport.split(' ')[0]}</span>
+                  <span className="tnum" style={{ fontSize: 11, color: '#8A8272' }}>{r.c.month}</span>
+                  <span className="tnum" style={{ fontSize: 12, fontWeight: 600 }}>{usd2(r.sale)}</span>
+                  <span className="tnum" style={{ fontSize: 11.5, color: '#B4531F' }}>−{usd2(r.fees)} fees</span>
+                  <span className="tnum" style={{ fontSize: 12, fontWeight: 700, color: '#1B5E43', marginLeft: 'auto' }}>
+                    {monthing ? usd2(r.profit) : usd2(r.net)} kept
+                  </span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginTop: 10, fontSize: 12, color: '#8A8272' }}>
           <span>
             Showing <b className="tnum" style={{ color: '#221F1A' }}>{rows.length}</b> of {cards.length} cards
@@ -568,13 +614,15 @@ export default function FullBreakdown() {
       <section style={{ marginTop: 44 }}>
         <SectionHeader n={4} title="The traffic story: you're renting your visibility" accent="#B4531F" />
         <p style={{ fontSize: 13.5, color: '#524B3F', lineHeight: 1.6, maxWidth: 820, margin: '10px 0 8px' }}>
-          Here's the uncomfortable part. Nearly <b>three out of four impressions</b> you got last month were <b>paid</b> — eBay
-          Promoted Listings — and that paid channel is <b>shrinking</b>. Your free, organic reach is small but it's the only
-          source actually <b>growing</b>.
+          Here's the uncomfortable part. <b>{paidShare}% of your impressions</b> in this window were <b>paid</b> — eBay
+          Promoted Listings{promotedSrc && promotedSrc.delta < 0 ? (
+            <> — and that paid channel is <b>shrinking</b></>
+          ) : null}.{organicSrc && organicSrc.delta > 0 ? (
+            <> Your free, organic reach is small but it's <b>growing</b>.</>
+          ) : null}
         </p>
         <p style={{ fontSize: 12, color: '#8A8272', lineHeight: 1.55, maxWidth: 820, margin: '0 0 16px' }}>
-          eBay's year-to-date traffic export failed to load, so this is the most recent complete 30-day window (May 27 – Jun
-          26), with each metric compared to the prior 30 days.
+          Window: <span className="tnum">{TR ? TR.window : '—'}</span>, each metric {TR ? TR.compare : ''}.
         </p>
 
         {/* traffic KPIs */}
@@ -599,7 +647,7 @@ export default function FullBreakdown() {
           <div style={{ background: '#FBF9F4', border: '1px solid #E0D8C7', borderRadius: 15, padding: '20px 22px' }}>
             <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>Where your impressions come from</div>
             <div style={{ fontSize: 12, color: '#8A8272', marginBottom: 16 }}>
-              <span className="tnum">592,419</span> impressions last month, by source
+              <span className="tnum">{TR ? TR.impressions.toLocaleString() : '—'}</span> impressions this window, by source
             </div>
             <div style={{ display: 'flex', height: 22, borderRadius: 7, overflow: 'hidden', border: '1px solid #E0D8C7', marginBottom: 16 }}>
               {sources.map((s) => (
@@ -643,19 +691,31 @@ export default function FullBreakdown() {
                 </div>
               </div>
             ))}
-            <div style={{ fontSize: 11.5, color: '#A79F8F', lineHeight: 1.5, marginTop: 4 }}>
-              Listing views actually rose <b style={{ color: '#fff' }}>+37%</b> — when people find you, the listings work. The
-              gap is getting found.
-            </div>
+            {TR && TR.views_delta > 0 ? (
+              <div style={{ fontSize: 11.5, color: '#A79F8F', lineHeight: 1.5, marginTop: 4 }}>
+                Listing views actually rose <b style={{ color: '#fff' }}>+{Math.round(TR.views_delta)}%</b> — when people find
+                you, the listings work. The gap is getting found.
+              </div>
+            ) : null}
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 14, background: '#F1EBDD', border: '1px solid #E0D8C7', borderRadius: 12, padding: '14px 17px', maxWidth: 900 }}>
           <span style={{ fontSize: 15, lineHeight: 1.3 }}>→</span>
           <p style={{ margin: 0, fontSize: 13, color: '#524B3F', lineHeight: 1.6 }}>
-            <b>Contrast that matters:</b> paid impressions fell <b className="tnum">12.6%</b> while organic <b>grew</b>{' '}
-            <b className="tnum">5.9%</b>. You're leaning on the channel that's declining and underusing the one that compounds
-            for free. Every point of organic growth is margin you keep instead of rent you pay eBay.
+            {promotedSrc && organicSrc && promotedSrc.delta < 0 && organicSrc.delta > 0 ? (
+              <>
+                <b>Contrast that matters:</b> paid impressions fell{' '}
+                <b className="tnum">{Math.abs(promotedSrc.delta).toFixed(1)}%</b> while organic <b>grew</b>{' '}
+                <b className="tnum">{organicSrc.delta.toFixed(1)}%</b>. You're leaning on the channel that's declining and
+                underusing the one that compounds for free.{' '}
+              </>
+            ) : (
+              <>
+                <b>The split that matters:</b> paid channels drive <b className="tnum">{paidShare}%</b> of your impressions.{' '}
+              </>
+            )}
+            Every point of organic growth is margin you keep instead of rent you pay eBay.
           </p>
         </div>
       </section>
@@ -665,7 +725,7 @@ export default function FullBreakdown() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginTop: 26, fontSize: 11.5, color: '#8A8272' }}>
         <span>
-          Built from your eBay transaction ledger, orders &amp; listing-quality reports and the Jun 26 YTD traffic report ·{' '}
+          Built from your eBay transaction ledger, orders &amp; listing-quality reports and the traffic report ({TR ? TR.window : 'n/a'}) ·{' '}
           <span className="tnum">{meta.period}</span>
         </span>
         <Link to="/summary" style={{ color: '#524B3F', fontWeight: 600 }}>

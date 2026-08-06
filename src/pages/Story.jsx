@@ -173,6 +173,33 @@ export default function Story() {
         </div>
       </div>
 
+      {/* SINCE LAST MONTH (auto-computed after each monthly close) */}
+      {M.length >= 2 && (() => {
+        const last = M[M.length - 1], prev = M[M.length - 2]
+        const d = prev.item_sales ? ((last.item_sales - prev.item_sales) / prev.item_sales) * 100 : 0
+        const bestOfMonth = D.cards.filter((c) => c.month === last.month).sort((a, b) => b.item_sales - a.item_sales)[0]
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 18px', marginTop: 14, background: '#FBF9F4', border: '1px solid #E0D8C7', borderRadius: 11, padding: '10px 15px', fontSize: 12.5, color: '#524B3F' }}>
+            <b style={{ color: '#221F1A' }}>Since {prev.month}:</b>
+            <span>
+              {last.month} sales <b className="tnum">{usd(last.item_sales)}</b>{' '}
+              <span className="tnum" style={{ fontWeight: 700, color: d >= 0 ? '#1B5E43' : '#B4531F' }}>
+                {d >= 0 ? '▲' : '▼'}{Math.abs(d).toFixed(0)}%
+              </span>
+            </span>
+            <span>
+              costs took <b className="tnum">{Math.round(last.fee_load)}¢/$</b> (was {Math.round(prev.fee_load)}¢)
+            </span>
+            {bestOfMonth && (
+              <span style={{ minWidth: 0 }}>
+                best sale: <b>{bestOfMonth.title.length > 42 ? bestOfMonth.title.slice(0, 42) + '…' : bestOfMonth.title}</b>{' '}
+                <b className="tnum">{usd2(bestOfMonth.item_sales)}</b>
+              </span>
+            )}
+          </div>
+        )
+      })()}
+
       {/* CH 1 · BOTTOM LINE */}
       <section style={{ marginTop: 30 }}>
         <div className="lift" style={{ background: '#164A35', border: '1px solid #123C2B', borderRadius: 18, padding: '30px 32px', color: '#F4EFDF' }}>
@@ -258,12 +285,14 @@ export default function Story() {
             </div>
           ) : null}
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12, background: '#F1EBDD', border: '1px solid #E0D8C7', borderRadius: 11, padding: '12px 15px', maxWidth: 640 }}>
-          <span style={{ fontSize: 14, lineHeight: 1.4 }}>→</span>
-          <p style={{ margin: 0, fontSize: 13, color: '#524B3F', lineHeight: 1.55 }}>
-            One more thing hit this chart: a card <b>lost in the mail in March</b> cost you <b className="tnum">{usd(-H.claim)}</b> — it erased most of that month.
-          </p>
-        </div>
+        {H.claim < 0 ? (
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12, background: '#F1EBDD', border: '1px solid #E0D8C7', borderRadius: 11, padding: '12px 15px', maxWidth: 640 }}>
+            <span style={{ fontSize: 14, lineHeight: 1.4 }}>→</span>
+            <p style={{ margin: 0, fontSize: 13, color: '#524B3F', lineHeight: 1.55 }}>
+              One more thing hit this chart: a card <b>lost in the mail</b> cost you <b className="tnum">{usd(-H.claim)}</b> in a single claim this year.
+            </p>
+          </div>
+        ) : null}
         {PY && pyH2 > pyH1 ? (
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 10, background: '#DCEAE0', border: '1px solid #BFD6C6', borderRadius: 11, padding: '12px 15px', maxWidth: 640 }}>
             <span style={{ fontSize: 14, lineHeight: 1.4 }}>📈</span>

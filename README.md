@@ -49,7 +49,8 @@ Pull two reports from eBay for the month:
 Then:
 
 ```bash
-SITE_PASSWORD='…' node scripts/add-month.mjs --orders orders.csv --txn txn.csv
+SITE_PASSWORD='…' node scripts/add-month.mjs --orders orders.csv --txn txn.csv \
+  [--traffic traffic.csv --traffic-window "Jul 1 – Jul 31, 2026"]
 npx vitest run
 git add public/ccsc-data.enc.json test/pins.json && git commit && git push
 ```
