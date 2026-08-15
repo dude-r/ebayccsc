@@ -3,6 +3,9 @@ import { useData } from '../lib/dataContext.js'
 import { usd, usd2 } from '../lib/format.js'
 import SectionHeader from '../components/SectionHeader.jsx'
 
+const MONTH_FULL = { Jan: 'January', Feb: 'February', Mar: 'March', Apr: 'April', May: 'May', Jun: 'June', Jul: 'July', Aug: 'August', Sep: 'September', Oct: 'October', Nov: 'November', Dec: 'December' }
+const monthName = (m) => MONTH_FULL[m] || m
+
 // Narrative "how the first half went" summary. Ported from the Story
 // prototype's renderVals(). Rendered at the canonical Daylight/Fira look
 // (the prototype's ambience/typeface tweaks were exploratory and omitted).
@@ -27,6 +30,15 @@ export default function Story() {
     H.fvf_var + H.fvf_fixed + H.promo_offsite + H.promo_general + H.insertion + H.gallery + H.international + H.regulatory + H.store_sub
   const ship = H.postage + H.supplies
   const losses = -H.refunds - H.claim
+  // Claim months are read from the ledger so this line can't drift as new
+  // months land (it used to hardcode "in March").
+  const claimMonths = M.filter((m) => m.claim < 0).map((m) => monthName(m.month))
+  const claimNote =
+    claimMonths.length === 1
+      ? usd(-H.claim) + ' was a single card lost in the mail in ' + claimMonths[0] + '.'
+      : claimMonths.length > 1
+        ? usd(-H.claim) + ' was claims for cards lost in the mail (' + claimMonths.join(', ') + ').'
+        : usd(-H.refunds) + ' in refunds to buyers, no lost-card claims this year.'
   const seg = (label, amt, color, fg, note) => ({
     label,
     amt: usd(amt),
@@ -46,7 +58,7 @@ export default function Story() {
       usd(H.fvf_var + H.fvf_fixed) + ' selling fees · ' + usd(H.promo_offsite + H.promo_general) + ' ads · ' + usd(H.insertion + H.gallery) + ' listing fees · ' + usd(H.store_sub) + ' store'
     ),
     seg('Shipping & supplies', ship, '#8A8272', '#F4EFDF', 'Buyers reimbursed ' + usd(H.ship_charged) + ' of it, so shipping roughly broke even.'),
-    seg('Refunds & a lost card', losses, '#5C2E14', '#EDD9C8', usd(-H.claim) + ' was a single card lost in the mail in March.'),
+    seg(claimMonths.length ? 'Refunds & a lost card' : 'Refunds', losses, '#5C2E14', '#EDD9C8', claimNote),
   ]
 
   // Ch3 — monthly bars (with a faint prior-year bar when the baseline exists)
@@ -145,11 +157,10 @@ export default function Story() {
     },
   ]
 
-  const MONTH_FULL = { Jan: 'January', Feb: 'February', Mar: 'March', Apr: 'April', May: 'May', Jun: 'June', Jul: 'July', Aug: 'August', Sep: 'September', Oct: 'October', Nov: 'November', Dec: 'December' }
   const lastM = M[M.length - 1]
   const janLoad = Math.round(M[0].fee_load)
   const lastLoad = Math.round(lastM.fee_load)
-  const lastName = MONTH_FULL[lastM.month] || lastM.month
+  const lastName = monthName(lastM.month)
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: '0 20px 90px' }}>
