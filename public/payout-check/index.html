@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCSC — Payout Check</title>
+<style>
+  :root{
+    --page:#E9E3D6; --tile:#FBF9F4; --tile2:#F4EFDF;
+    --line:#E0D8C7; --line2:#D3C9B6;
+    --green:#1B5E43; --green-dk:#164A35; --green-soft:#C4D6CB;
+    --orange:#B4531F; --orange-dk:#8A4A1C; --orange-soft:#E4C9A6;
+    --ink:#221F1A; --ink2:#524B3F; --gray:#6B6459; --muted:#8A8272;
+    --cream:#F4EFDF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  button,input{touch-action:manipulation}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--page);color:var(--ink);
+    padding:22px 14px 60px;min-height:100vh;
+  }
+  .tnum{font-variant-numeric:tabular-nums}
+  .wrap{max-width:560px;margin:0 auto}
+
+  .head{display:flex;align-items:center;gap:12px;padding:4px 2px 16px;border-bottom:1px solid var(--line2);margin-bottom:16px}
+  .cc{width:44px;height:44px;border-radius:11px;background:var(--green);display:flex;align-items:center;justify-content:center;color:var(--cream);font-weight:800;font-size:18px;letter-spacing:-.5px;flex:none}
+  .head .t1{font-size:20px;font-weight:800;letter-spacing:-.4px;line-height:1.1}
+  .head .t2{font-size:12.5px;color:var(--gray);margin-top:2px}
+
+  .cap{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+
+  /* big money inputs */
+  .field{background:var(--tile);border:1px solid var(--line);border-radius:13px;padding:14px 17px;margin-top:12px}
+  .field .top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .field .lbl{font-size:14px;font-weight:700;color:var(--ink2)}
+  .field .lbl small{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-top:1px}
+  .money{display:flex;align-items:center;gap:2px;flex:none}
+  .money span{font-size:20px;font-weight:800;color:var(--muted)}
+  .money input{width:110px;font-size:22px;font-weight:800;letter-spacing:-.4px;text-align:right;border:1.5px solid var(--line2);border-radius:10px;background:var(--tile2);color:var(--ink);padding:10px 10px;font-variant-numeric:tabular-nums;font-family:inherit}
+  .money input:focus{outline:none;border-color:var(--green);background:#fff}
+
+  /* auto fee line */
+  .feeline{margin-top:12px;background:var(--tile2);border:1px dashed var(--line2);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:baseline}
+  .feeline .k{font-size:13px;font-weight:700;color:var(--ink2)}
+  .feeline .k small{color:var(--muted);font-weight:600}
+  .feeline .v{font-size:18px;font-weight:800;color:var(--orange);font-variant-numeric:tabular-nums}
+
+  /* ship cost picker */
+  .ozrow{display:flex;gap:7px;margin-top:10px}
+  .oz{flex:1;border:1px solid var(--line2);border-radius:10px;background:var(--tile2);padding:8px 4px 7px;text-align:center;cursor:pointer;transition:all .12s}
+  .oz b{display:block;font-size:14.5px;font-weight:800}
+  .oz small{font-size:11px;font-weight:600;color:var(--muted)}
+  .oz.active{background:var(--green);border-color:var(--green)}
+  .oz.active b{color:var(--cream)} .oz.active small{color:var(--green-soft)}
+  .subrow{display:flex;gap:10px;margin-top:10px}
+  .subrow .mini{flex:1}
+  .mini .n{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+  .mini input{width:100%;border:1px solid var(--line2);border-radius:9px;background:var(--tile2);font-size:16px;font-weight:700;padding:9px 10px;color:var(--ink);font-variant-numeric:tabular-nums;font-family:inherit;text-align:right}
+  .mini input:focus{outline:none;border-color:var(--green)}
+
+  /* NET */
+  .netbox{margin-top:16px;background:var(--green-dk);border-radius:16px;padding:20px;text-align:center}
+  .netbox .cap{color:var(--green-soft)}
+  .net{font-size:56px;font-weight:800;letter-spacing:-1.5px;color:#fff;line-height:1.1;font-variant-numeric:tabular-nums}
+  .net.neg{color:#F0C9A8}
+  .netsub{font-size:13px;color:var(--green-soft);font-weight:600;margin-top:4px}
+
+  /* receipt */
+  .card{background:var(--tile);border:1px solid var(--line);border-radius:16px;padding:16px 20px;margin-top:14px}
+  .rrow{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+  .rrow:last-child{border-bottom:none}
+  .rrow .k{font-weight:600;color:var(--ink2)}
+  .rrow .k small{color:var(--muted);font-size:12px}
+  .rrow .v{font-weight:800;font-variant-numeric:tabular-nums;margin-left:14px;flex:none}
+  .rrow.minus .v{color:var(--orange)}
+
+  /* sanity check */
+  .callout{margin-top:12px;border:1px solid var(--green-soft);background:#EFF4EF;border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.55;color:#2C4636;display:none}
+  .callout.warn{border-color:var(--orange-soft);background:#FBF3E8;color:#5C4326}
+  .callout .h{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px;color:var(--green)}
+  .callout.warn .h{color:var(--orange-dk)}
+  .callout b{font-variant-numeric:tabular-nums}
+
+  .clearbtn{margin-top:14px;width:100%;border:1px solid var(--line2);border-radius:11px;background:var(--tile);color:var(--ink2);font-size:14px;font-weight:700;padding:12px;cursor:pointer;font-family:inherit}
+  .clearbtn:active{background:var(--line)}
+
+  .foot{margin-top:18px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <div class="cc">CC</div>
+    <div>
+      <div class="t1">Payout Check</div>
+      <div class="t2">A card sold — what did we actually make?</div>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="top">
+      <div class="lbl">It sold for<small>order total the buyer paid — items + shipping</small></div>
+      <div class="money"><span>$</span><input id="sold" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <div class="top">
+      <div class="lbl">eBay paid us<small>the payout for this order, from Seller Hub</small></div>
+      <div class="money"><span>$</span><input id="got" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
+    </div>
+    <div class="feeline"><span class="k">eBay took <small>· sold − paid out</small></span><span class="v tnum" id="took">—</span></div>
+  </div>
+
+  <div class="field">
+    <div class="lbl">Our shipping cost<small>label + supplies for this shipment</small></div>
+    <div class="ozrow">
+      <button class="oz active" data-rate="0.78"><b>1 oz</b><small>78¢</small></button>
+      <button class="oz" data-rate="1.07"><b>2 oz</b><small>$1.07</small></button>
+      <button class="oz" data-rate="1.36"><b>3 oz</b><small>$1.36</small></button>
+    </div>
+    <div class="subrow">
+      <label class="mini"><span class="n">Postage $</span><input id="postage" value="0.78" inputmode="decimal" autocomplete="off"></label>
+      <label class="mini"><span class="n">Supplies $</span><input id="supplies" value="0.64" inputmode="decimal" autocomplete="off"></label>
+      <label class="mini"><span class="n">Card cost $ <em style="font-style:normal">(opt.)</em></span><input id="cost" value="" inputmode="decimal" autocomplete="off" placeholder="0"></label>
+    </div>
+  </div>
+
+  <div class="netbox">
+    <div class="cap">Net on this sale</div>
+    <div class="net tnum" id="net">$0.00</div>
+    <div class="netsub" id="netsub">enter the two numbers from the order</div>
+  </div>
+
+  <div class="card" id="receipt" style="display:none">
+    <div class="cap" style="margin-bottom:6px">The receipt</div>
+    <div id="rows"></div>
+  </div>
+
+  <div class="callout" id="sanity"></div>
+
+  <button class="clearbtn" id="clear">Clear — next sale</button>
+
+  <div class="foot">
+    Expected eBay cut = 13.25% of the sale + 30¢ order fee (40¢ over $10) — the check below the net flags anything off-pattern.<br>
+    eSE labels eff. Jul 12 2026: 1 oz 78¢ · 2 oz $1.07 · 3 oz $1.36
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>(n<0?"−$":"$")+Math.abs(n).toFixed(2);
+const num=id=>{const v=parseFloat(($(id).value||"").replace(/[^0-9.]/g,""));return isNaN(v)?0:v;};
+
+function calc(){
+  const sold=num("sold"), got=num("got");
+  const postage=num("postage"), supplies=num("supplies"), cost=num("cost");
+  const shipCost=postage+supplies;
+  const hasBoth=sold>0&&got>0;
+
+  const took=hasBoth?Math.max(0,sold-got):0;
+  $("took").textContent=hasBoth?money(-took):"—";
+
+  const net=got-shipCost-cost;
+  const nEl=$("net");
+  if(!hasBoth&&got<=0){ nEl.textContent="$0.00"; nEl.className="net tnum"; $("netsub").textContent="enter the two numbers from the order"; }
+  else{
+    nEl.textContent=money(net);
+    nEl.className="net tnum"+(net<0?" neg":"");
+    $("netsub").textContent=cost>0?"true profit — card cost included":"before what the card cost us";
+  }
+
+  // receipt
+  if(got>0){
+    $("receipt").style.display="block";
+    const rows=[
+      ...(hasBoth?[["Sold for","order total",sold,""]]:[]),
+      ...(hasBoth?[["eBay took","fees on this order",-took,"minus"]]:[]),
+      ["eBay paid us","",got,""],
+      ["Postage","",-postage,"minus"],
+      ["Supplies","",-supplies,"minus"],
+      ...(cost>0?[["Card cost us","",-cost,"minus"]]:[]),
+      ["Net","",net,net<0?"minus":""]
+    ];
+    $("rows").innerHTML=rows.map(([k,s,v,cls])=>
+      `<div class="rrow ${cls}"><span class="k">${k}${s?` <small>· ${s}</small>`:""}</span><span class="v">${money(v)}</span></div>`).join("");
+  } else { $("receipt").style.display="none"; }
+
+  // sanity check on eBay's cut
+  const sc=$("sanity");
+  if(hasBoth){
+    const expected=sold*0.1325+(sold>10?0.40:0.30);
+    const diff=took-expected;
+    sc.style.display="block";
+    if(Math.abs(diff)<=0.06){
+      sc.className="callout";
+      sc.innerHTML=`<div class="h">eBay's cut checks out</div>They took <b>${money(took)}</b>; the standard 13.25% + order fee predicts <b>${money(expected)}</b>. Normal.`;
+    }else if(diff>0){
+      sc.className="callout warn";
+      sc.innerHTML=`<div class="h">eBay took ${money(diff)} more than standard</div>Expected <b>${money(expected)}</b>, actual <b>${money(took)}</b>. Usual suspects: Promoted Listings fee, international fee, or fee charged on the buyer's sales tax. Check the order's fee detail.`;
+    }else{
+      sc.className="callout";
+      sc.innerHTML=`<div class="h">eBay took ${money(-diff)} less than standard</div>Expected <b>${money(expected)}</b>, actual <b>${money(took)}</b>. Could be a fee discount or promo on this order.`;
+    }
+  } else sc.style.display="none";
+}
+
+// bind generously — mobile webviews are inconsistent about which events fire
+["sold","got","postage","supplies","cost"].forEach(id=>{
+  ["input","change","keyup"].forEach(ev=>$(id).addEventListener(ev,calc));
+});
+document.querySelectorAll(".oz").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".oz").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  $("postage").value=(+b.dataset.rate).toFixed(2);
+  calc();
+}));
+$("clear").addEventListener("click",()=>{
+  ["sold","got","cost"].forEach(id=>$(id).value="");
+  calc();
+  $("sold").focus();
+});
+calc();
+</script>
+</body>
+</html>
